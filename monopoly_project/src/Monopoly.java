@@ -88,11 +88,15 @@ public class Monopoly {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
-        System.out.println("*******************");
-        System.out.println("* M O N O P O L Y *");
-        System.out.println("*******************");
+        String TEXT_RED = "\u001B[31m";
+        String TEXT_RESET = "\u001B[0m";
 
-        System.out.println("Hello!");
+        System.out.println(TEXT_RED + "   *******************" + TEXT_RESET);
+        System.out.println(TEXT_RED + "****" + TEXT_RESET + " M O N O P O L Y " + TEXT_RED + "****" + TEXT_RESET);
+        System.out.println(TEXT_RED + "   *******************" + TEXT_RESET);
+        System.out.println();
+
+        System.out.println("Hello friend!");
         System.out.print("Enter a number of players (1-4): ");
         int numberOfPlayers = Integer.parseInt(scanner.nextLine());
         while (numberOfPlayers < 1 || numberOfPlayers > 4) {
@@ -152,10 +156,11 @@ public class Monopoly {
                 break;
         }
 
+
         System.out.println();
-        System.out.println("*********");
-        System.out.println("* START *");
-        System.out.println("*********");
+        System.out.println(TEXT_RED + "   *********");
+        System.out.println("**** START ****");
+        System.out.println("   *********" + TEXT_RESET);
         System.out.println();
 
         Map<String, Integer> playersBudget = new HashMap<>();
