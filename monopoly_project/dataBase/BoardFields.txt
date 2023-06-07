@@ -13,7 +13,7 @@ St. Charles Place, for rent, 140, 10, 20, 50, 150, 450, 625, 750, 100, 100, none
 Electric Company, for rent, 150, none
 States Avenue, for rent, 140, 10, 20, 50, 150, 450, 625, 750, 100, 100, none
 Virginia Avenue, for rent, 160, 12, 24, 60, 180, 500, 700, 900, 100, 100, none
-Pensylvania Railroad, for rent, 200, none
+Pennsylvania Railroad, for rent, 200, none
 St. James Place, for rent, 180, 14, 28, 70, 200, 550, 750, 950, 100, 100, none
 Community Chest
 Tennessee Avenue, for rent, 180, 14, 28, 70, 200, 550, 750, 950, 100, 100, none
