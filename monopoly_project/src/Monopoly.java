@@ -1,10 +1,13 @@
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
 public class Monopoly {
+
+    public static boolean moneyValidation(int money, int price) {
+        return money - price >= 0;
+    }
 
     public static String colorFieldCard(String[] currentField) {
         StringBuilder sb = new StringBuilder();
@@ -246,12 +249,17 @@ public class Monopoly {
                                     answer = scanner.nextLine();
                                 }
                                 if (answer.equals("yes")) {
-                                    currentField[1] = "Sold";
-                                    currentField[12] = firstPlayerName;
-                                    firstPlayerRepository.add(currentField[0]);
-                                    playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - Integer.parseInt(currentField[2]));
-                                    printPlayerStats(firstPlayerName, playersBudget.get(firstPlayerName), firstPlayerRepository, firstPlayerSpecialCards);
-                                    System.out.println(colorFieldCard(currentField));
+                                    if (moneyValidation(playersBudget.get(firstPlayerName), Integer.parseInt(currentField[2]))) {
+                                        currentField[1] = "Sold";
+                                        currentField[12] = firstPlayerName;
+                                        firstPlayerRepository.add(currentField[0]);
+                                        playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - Integer.parseInt(currentField[2]));
+                                        printPlayerStats(firstPlayerName, playersBudget.get(firstPlayerName), firstPlayerRepository, firstPlayerSpecialCards);
+                                        System.out.println(colorFieldCard(currentField));
+                                    } else {
+                                        System.out.println("Not enough money! You have $" + playersBudget.get(firstPlayerName) +
+                                                " and the price is $" + Integer.parseInt(currentField[2]));
+                                    }
                                 }
                             } else {
                                 String fieldOwner = currentField[12];
@@ -270,12 +278,17 @@ public class Monopoly {
                                 String answer = scanner.nextLine();
 
                                 if (answer.equals("yes")) {
+                                    if (moneyValidation(playersBudget.get(firstPlayerName), Integer.parseInt(currentField[2]))) {
                                     currentField[1] = "Sold";
                                     currentField[3] = firstPlayerName;
                                     firstPlayerRepository.add(currentField[0]);
                                     playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - Integer.parseInt(currentField[2]));
                                     printPlayerStats(firstPlayerName, playersBudget.get(firstPlayerName), firstPlayerRepository, firstPlayerSpecialCards);
                                     System.out.println(companyFieldCard(currentField));
+                                    } else {
+                                        System.out.println("Not enough money! You have $" + playersBudget.get(firstPlayerName) +
+                                                " and the price is $" + Integer.parseInt(currentField[2]));
+                                    }
                                 }
                             } else {
                                 String fieldOwner = currentField[3];
