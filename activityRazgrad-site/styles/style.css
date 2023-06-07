@@ -1,0 +1,242 @@
+@import url("https://fonts.googleapis.com/css2?family=Nunito:ital,wght@0,200;0,300;0,400;0,500;0,600;0,700;0,800;1,200;1,300;1,400;1,500;1,600;1,700;1,800&display=swap");
+
+body {
+  width: 98vw;
+  height: 100vh;
+  font-family: "Nunito", sans-serif;
+  padding-right: 20px;
+  background-color: rgb(220, 237, 255);
+  color: rgb(63, 63, 63);
+  
+}
+
+header {
+  width: 100%;
+  height: 80px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin: 1rem;
+  border-radius: 6px;
+  box-shadow: 3px 3px 3px 0.8px rgb(216, 216, 216);
+  overflow: hidden;
+  /* background-color: rgb(248, 248, 248); */
+}
+
+header .flag {
+  width: calc(90px + 8rem);
+  height: 100%;
+  display: flex;
+}
+
+header .green {
+  width: 3.8rem;
+  height: 100%;
+  background-color: green;
+}
+
+header .emblem {
+  width: 90px;
+  height: 100%;
+  overflow: hidden;
+  padding: 0.5rem;
+  background-color: white;
+}
+
+header .emblem-img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+header p {
+  font-size: 3rem;
+  text-align: center;
+}
+
+header ul {
+  display: flex;
+  gap: 1.5rem;
+  justify-content: space-between;
+}
+
+header ul li:last-child {
+  color: blue;
+  margin-right: 1.5rem;
+}
+
+header a {
+  font-size: 1rem;
+  text-decoration: none;
+  color: black;
+}
+
+header a:hover {
+  color: blue;
+}
+
+main {
+  width: 100%;
+  margin: 1rem;
+  display: flex;
+  /* flex-wrap: wrap; */
+  justify-content: center;
+  gap: 50px;
+  align-items: center;
+}
+
+main h3 {
+  text-align: center;
+  font-size: 1.5rem;
+  text-transform: uppercase;
+}
+
+.main-section {
+  width: 20rem;
+  /* height: 730px; */
+  border-radius: 6px;
+  box-shadow: 2px 2px 2px 0.5px rgb(216, 216, 216);
+  overflow: hidden;
+  background-color: rgb(248, 248, 248);
+  padding: 0.6rem;
+  margin: 2rem 0rem;
+}
+
+.main-section:hover {
+  padding: 0.3rem;
+  box-shadow: 2px 2px 4px 1.5px rgb(105, 105, 105);
+  /* background-color: rgb(233, 255, 248); */
+  transition: 0.5s;
+}
+
+.main-section-header {
+  padding: 0.5rem;
+  font-size: 1.5rem;
+  text-align: center;
+  border-bottom: 1px solid rgb(216, 216, 216);
+}
+
+section article {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 1.5rem;
+  margin-top: 1.5rem;
+}
+
+.main-section .img-divider {
+  width: 100%;
+  height: 100px;
+  overflow: hidden;
+  text-align: center;
+  display: flex;
+  /* flex-direction: column;
+  justify-content: center; */
+  align-items: center;
+}
+
+.main-section p {
+  padding: 0.5rem;
+  text-align: justify;
+}
+
+.logo {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.picture {
+  width: 100%;
+  height: 180px;
+  object-fit: cover;
+  padding: 0.2rem;
+}
+
+.button {
+  margin-bottom: 1rem;
+  padding: 0.3rem 0rem;
+  border-radius: 6px;
+  border: none;
+  box-shadow: 2px 2px 4px 1.5px rgb(216, 216, 216);
+  background-color: rgb(248, 248, 248);
+  width: 50%;
+  font-size: 1.2rem;
+  text-transform: uppercase;
+  font-weight: bold;
+  text-align: center;
+  text-decoration: none;
+  color: black;
+}
+
+.button:hover {
+  background-color: rgb(223, 223, 223);
+  box-shadow: 2px 2px 4px 1.5px rgb(26, 25, 25);
+}
+
+footer {
+  width: 100%;
+  margin-left: 1.5rem;
+  border-top: 1.5px solid rgb(216, 216, 216);
+  /* border-radius: 6px;
+  box-shadow: 2px 2px 2px 0.5px rgb(216, 216, 216);
+  background-color: rgb(243, 243, 243); */
+  margin-top: 4.5rem;
+  padding-top: 1rem;
+  color: rgb(150, 150, 150);
+}
+
+@media screen and (max-width: 1408px) {
+  main p {
+    font-size: 0.9rem;
+  }
+
+  main h3 {
+    font-size: 1.2rem;
+  }
+
+  .button {
+    font-size: 0.9rem;
+    padding: 0px;
+  }
+}
+
+@media screen and (max-width: 1188px) {
+  header p {
+    font-size: 2.5rem;
+  }
+
+  main {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    justify-content: space-between;
+    align-items: center;
+    grid-row: 1fr 1fr;
+  }
+
+  .main-section {
+    margin: auto;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  header p {
+    font-size: 2rem;
+  }
+}
+
+@media screen and (max-width: 880px) {
+  header {
+    display: none;
+  }
+}
+
+@media screen and (max-width: 700px) {
+
+  main {
+    display: flex;
+    flex-direction: column;
+  }
+}

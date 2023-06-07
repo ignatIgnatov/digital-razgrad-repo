@@ -1,0 +1,93 @@
+main {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  align-items: start;
+}
+
+.left {
+  width: 35%;
+  text-align: justify;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 2px 2px 4px 1.8px rgb(180, 180, 180);
+  padding: 10px;
+  border-radius: 6px;
+}
+
+h2 {
+  text-align: left;
+  margin-bottom: 15px;
+}
+
+.center {
+  width: 30%;
+  text-align: justify;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 2px 2px 4px 1.8px rgb(180, 180, 180);
+  padding: 10px;
+  border-radius: 6px;
+}
+
+img:not(img:first-child) {
+  margin-top: 15px;
+}
+
+.right {
+  width: 30%;
+  display: flex;
+  flex-direction: column;
+}
+
+.right-up {
+  text-align: justify;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 2px 2px 4px 1.8px rgb(180, 180, 180);
+  padding: 10px;
+  border-radius: 6px;
+}
+
+.right-down {
+  text-align: justify;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  box-shadow: 2px 2px 4px 1.8px rgb(180, 180, 180);
+  padding: 10px;
+  border-radius: 6px;
+  margin-top: 25px;
+}
+
+@media screen and (max-width: 1000px) {
+  main {
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .left,
+  .center,
+  .right {
+    width: 100%;
+    margin: 40px 0px;
+    padding: 20px 10px;
+  }
+
+  h2 {
+    font-size: 1.3rem;
+  }
+}
+
+@media screen and (max-width: 400px) {
+  .left,
+  .center,
+  .right {
+    margin: 10px 0px;
+    padding: 10px;
+  }
+}

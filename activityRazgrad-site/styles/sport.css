@@ -1,0 +1,186 @@
+.main {
+  width: 100%;
+  margin: 1rem;
+  display: flex;
+  gap: 15px;
+}
+
+.main p {
+  padding-right: 5px;
+}
+
+.left-section {
+  width: 70%;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 2px 2px 4px 1.8px rgb(180, 180, 180);
+}
+
+.right-section {
+  width: 30%;
+  border-radius: 6px;
+  overflow: hidden;
+  box-shadow: 2px 2px 4px 1.8px rgb(180, 180, 180);
+  padding-bottom: 20px;
+}
+
+.left-section h2 {
+  margin-top: 1rem;
+}
+
+.left-section img {
+  width: 100%;
+  height: 150px;
+  object-fit: cover;
+}
+
+.articles {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  text-align: justify;
+  /* gap: 10px; */
+  margin: 10px 0px;
+}
+
+.articles article {
+  height: 680px;
+  overflow: auto;
+  padding: 0px 10px;
+  margin: 0px;
+}
+
+.left,
+.right {
+  max-width: 15%;
+  height: 650px;
+}
+
+.left img,
+.right img {
+  width: 100%;
+  height: 100%;
+}
+
+.center {
+  width: 850px;
+}
+
+.left-section-divider {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+}
+
+.up {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  justify-content: space-between;
+  justify-content: center;
+  padding: 5px;
+  height: 830px;
+}
+
+.up-left,
+.up-right {
+  text-align: justify;
+  overflow: auto;
+}
+
+.up-right div {
+  display: flex;
+  gap: 10px;
+  align-items: center;
+}
+
+.up-right ul {
+  display: flex;
+  flex-direction: column;
+}
+
+.up-left img {
+  padding-right: 10px;
+}
+
+.up-right img {
+  padding: 5px;
+}
+
+.website {
+  padding: 10px;
+}
+
+@media screen and (max-width: 1640px) {
+  .main p {
+    padding-right: 10px;
+    font-size: 0.8rem;
+  }
+
+  .main li {
+    font-size: 0.8rem;
+  }
+}
+
+@media screen and (max-width: 1000px) {
+  .main {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .articles {
+    flex-direction: column;
+    gap: 20px;
+  }
+
+  .left-section {
+    width: 600px;
+  }
+
+  .right-section {
+    width: 600px;
+  }
+
+}
+
+@media screen and (max-width: 880px) {
+  .articles article {
+    overflow: unset;
+    height: auto;
+  }
+
+  .up {
+    height: auto;
+  }
+
+  .up-left,
+  .up-right {
+    overflow: unset;
+    height: auto;
+  }
+}
+
+@media screen and (max-width: 640px) {
+  .left-section {
+    max-width: 400px;
+  }
+
+  .right-section {
+    max-width: 400px;
+  }
+}
+
+@media screen and (max-width: 450px) {
+  .left-section {
+    max-width: 300px;
+  }
+
+  .right-section {
+    max-width: 300px;
+  }
+
+  .left,
+  .right {
+    display: none;
+  }
+}
