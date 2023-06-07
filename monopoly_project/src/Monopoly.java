@@ -1,9 +1,62 @@
+import java.io.BufferedReader;
+import java.io.FileNotFoundException;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Monopoly {
+
+    public static String colorFieldCard(String[] currentField) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("----------").append(System.lineSeparator());
+        sb.append(currentField[0]).append(System.lineSeparator());
+        sb.append("Status: ").append(currentField[1]).append(System.lineSeparator());
+        sb.append("----------").append(System.lineSeparator());
+        sb.append("Price: ").append("$").append(currentField[2]).append(System.lineSeparator());
+        sb.append("Rent: ").append("$").append(currentField[3]).append(System.lineSeparator());
+        sb.append("Rent with color set: ").append("$").append(currentField[4]).append(System.lineSeparator());
+        sb.append("Rent for 1 house: ").append("$").append(currentField[5]).append(System.lineSeparator());
+        sb.append("Rent for 2 houses: ").append("$").append(currentField[6]).append(System.lineSeparator());
+        sb.append("Rent for 3 houses: ").append("$").append(currentField[7]).append(System.lineSeparator());
+        sb.append("Rent for 4 houses: ").append("$").append(currentField[8]).append(System.lineSeparator());
+        sb.append("Rent for a hotel: ").append("$").append(currentField[9]).append(System.lineSeparator());
+        sb.append("----------").append(System.lineSeparator());
+        sb.append("House price: ").append("$").append(currentField[10]).append(System.lineSeparator());
+        sb.append("Hotel price: ").append("$").append(currentField[11]).append(System.lineSeparator());
+        sb.append("----------").append(System.lineSeparator());
+        sb.append("Owner: ").append(currentField[12]);
+
+        return sb.toString();
+    }
+
+    public static String companyFieldCard(String[] currentField) {
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("----------").append(System.lineSeparator());
+        sb.append(currentField[0]).append(System.lineSeparator());
+        sb.append("Status: ").append(currentField[1]).append(System.lineSeparator());
+        sb.append("----------").append(System.lineSeparator());
+        sb.append("Price: ").append("$").append(currentField[2]).append(System.lineSeparator());
+        sb.append("----------").append(System.lineSeparator());
+        sb.append("Owner: ").append(currentField[3]);
+
+        return sb.toString();
+    }
+
+    public static String otherFieldCard(String[] currentField) {
+
+        StringBuilder sb = new StringBuilder();
+
+        sb.append("----------").append(System.lineSeparator());
+        sb.append(currentField[0]).append(System.lineSeparator());
+        sb.append("----------").append(System.lineSeparator());
+
+        return sb.toString();
+    }
 
     public static void printPlayerStats(String name, double money, List<String> purchases, List<String> specialCards) {
         System.out.println("-----------------------------------");
@@ -30,7 +83,7 @@ public class Monopoly {
         }
     }
 
-    public static void main(String[] args) {
+    public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
         System.out.println("*******************");
@@ -87,59 +140,16 @@ public class Monopoly {
                 break;
         }
 
-        String[] board = {
-                "Start",
-                "Black 1",
-                "Bank 1",
-                "Black 2",
-                "Income Tax",
-                "Sugar factory",
-                "Pink 1",
-                "Chance",
-                "Pink 2",
-                "Pink 3",
-                "Jail - just visit",
-                "Purple 1",
-                "Energy factory",
-                "Purple 2",
-                "Purple 3",
-                "Station 1",
-                "Orange 1",
-                "Bank 2",
-                "Orange 2",
-                "Orange 3",
-                "Parking",
-                "Red 1",
-                "Chance",
-                "Red 2",
-                "Red 3",
-                "Station 2",
-                "Yellow 1",
-                "Yellow 2",
-                "Water factory",
-                "Yellow 3",
-                "Go to the Jail",
-                "Green 1",
-                "Green 2",
-                "Bank 3",
-                "Green 3",
-                "Station 3",
-                "Chance",
-                "Blue 1",
-                "Luxury tax",
-                "Blue 2"
-        };
-
         System.out.println();
         System.out.println("*********");
         System.out.println("* START *");
         System.out.println("*********");
         System.out.println();
 
-        double firstPlayerMoney = 500;
-        double secondPlayerMoney = 500;
-        double thirdPlayerMoney = 500;
-        double fourthPlayerMoney = 500;
+        int firstPlayerMoney = 500;
+        int secondPlayerMoney = 500;
+        int thirdPlayerMoney = 500;
+        int fourthPlayerMoney = 500;
 
         List<String> firstPlayerRepository = new ArrayList<>();
         List<String> secondPlayerRepository = new ArrayList<>();
@@ -147,6 +157,19 @@ public class Monopoly {
         List<String> fourthPlayerRepository = new ArrayList<>();
 
         List<String> firstPlayerSpecialCards = new ArrayList<>();
+
+        BufferedReader bufferedReader = new BufferedReader(new FileReader("dataBase/BoardFields.txt"));
+
+        String[] board = new String[40];
+        int index = 0;
+        String line = "";
+
+        while ((line = bufferedReader.readLine()) != null) {
+            board[index] = line;
+            index++;
+        }
+
+        bufferedReader.close();
 
         switch (numberOfPlayers) {
             case 1:
@@ -191,7 +214,52 @@ public class Monopoly {
 
         firstPlayerFieldNumber += moveNumber;
 
-        String currentField = board[firstPlayerFieldNumber];
-        System.out.println("Current field: " + currentField);
+        if (firstPlayerFieldNumber >= 40) {
+            firstPlayerFieldNumber -= 40;
+        }
+
+        String[] currentField = board[firstPlayerFieldNumber].split(", ");
+
+        StringBuilder sb = new StringBuilder();
+
+        String fieldCard = "";
+
+        switch (firstPlayerFieldNumber) {
+            case 0, 2, 4, 7, 10, 17, 20, 22, 30, 33, 36, 38:
+                fieldCard = otherFieldCard(currentField);
+                System.out.println(fieldCard);
+                break;
+            case 1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39:
+                fieldCard = colorFieldCard(currentField);
+                System.out.println(fieldCard);
+                if (currentField[1].equals("for rent")) {
+                    System.out.println("Do you want to buy " + currentField[0] + "?");
+                    System.out.print("Enter 'yes' or 'no': ");
+                    String answer = scanner.nextLine();
+                    if (answer.equals("yes")) {
+                        currentField[1] = "Sold";
+                        currentField[12] = firstPlayerName;
+                        firstPlayerRepository.add(currentField[0]);
+                        firstPlayerMoney -= Integer.parseInt(currentField[2]);
+                        printPlayerStats(firstPlayerName, firstPlayerMoney, firstPlayerRepository, firstPlayerSpecialCards);
+                        System.out.println(colorFieldCard(currentField));
+                    }
+                } else {
+
+                }
+                break;
+            case 5, 12, 15, 25, 28, 35:
+                fieldCard = companyFieldCard(currentField);
+                System.out.println(fieldCard);
+                break;
+        }
+
+
+
+
+
+
+
+
     }
 }
