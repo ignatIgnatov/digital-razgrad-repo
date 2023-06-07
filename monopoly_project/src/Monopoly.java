@@ -61,13 +61,15 @@ public class Monopoly {
     }
 
     public static void printPlayerStats(String name, int money, List<String> purchases, List<String> specialCards) {
+        String TEXT_GREEN  = "\u001B[32m";
+        String TEXT_RESET  = "\u001B[0m";
         System.out.println("-----------------------------------");
-        System.out.printf("%s's statistic: %n", name);
+        System.out.printf(TEXT_GREEN + "%s's statistic: %n", name);
         System.out.println("Money: " + "$" + money);
         String playerFields = purchases.size() > 0 ? "Fields purchased: " + String.join(", ", purchases) : "Fields purchased: none";
         System.out.println(playerFields);
         String playerCards = specialCards.size() > 0 ? "Special cards: " + String.join(", ", specialCards) : "Special cards: none";
-        System.out.println(playerCards);
+        System.out.println(playerCards + TEXT_RESET);
         System.out.println("-----------------------------------");
     }
 
@@ -89,6 +91,8 @@ public class Monopoly {
         Scanner scanner = new Scanner(System.in);
 
         String TEXT_RED = "\u001B[31m";
+        String TEXT_CYAN   = "\u001B[36m";
+        String TEXT_YELLOW = "\u001B[33m";
         String TEXT_RESET = "\u001B[0m";
 
         System.out.println(TEXT_RED + "   *******************" + TEXT_RESET);
@@ -243,7 +247,7 @@ public class Monopoly {
                             break;
                         case 1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39:
                             fieldCard = colorFieldCard(currentField);
-                            System.out.println(fieldCard);
+                            System.out.println(TEXT_CYAN + fieldCard + TEXT_RESET);
 
                             if (currentField[1].equals("for rent")) {
                                 System.out.println("Do you want to buy " + currentField[0] + "?");
@@ -260,10 +264,10 @@ public class Monopoly {
                                         firstPlayerRepository.add(currentField[0]);
                                         playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - Integer.parseInt(currentField[2]));
                                         printPlayerStats(firstPlayerName, playersBudget.get(firstPlayerName), firstPlayerRepository, firstPlayerSpecialCards);
-                                        System.out.println(colorFieldCard(currentField));
+                                        System.out.println(TEXT_CYAN + colorFieldCard(currentField) + TEXT_RESET);
                                     } else {
-                                        System.out.println("Not enough money! You have $" + playersBudget.get(firstPlayerName) +
-                                                " and the price is $" + Integer.parseInt(currentField[2]));
+                                        System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(firstPlayerName) +
+                                                " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
                                     }
                                 }
                             } else {
@@ -275,12 +279,15 @@ public class Monopoly {
 
                         case 5, 12, 15, 25, 28, 35:
                             fieldCard = companyFieldCard(currentField);
-                            System.out.println(fieldCard);
+                            System.out.println(TEXT_YELLOW + fieldCard + TEXT_RESET);
 
                             if (currentField[1].equals("for rent")) {
                                 System.out.println("Do you want to buy " + currentField[0] + "?");
                                 System.out.println("Enter 'yes' or 'no': ");
                                 String answer = scanner.nextLine();
+                                while (!answer.equals("yes") && !answer.equals("no")) {
+                                    answer = scanner.nextLine();
+                                }
 
                                 if (answer.equals("yes")) {
                                     if (moneyValidation(playersBudget.get(firstPlayerName), Integer.parseInt(currentField[2]))) {
@@ -289,10 +296,10 @@ public class Monopoly {
                                     firstPlayerRepository.add(currentField[0]);
                                     playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - Integer.parseInt(currentField[2]));
                                     printPlayerStats(firstPlayerName, playersBudget.get(firstPlayerName), firstPlayerRepository, firstPlayerSpecialCards);
-                                    System.out.println(companyFieldCard(currentField));
+                                    System.out.println(TEXT_YELLOW + companyFieldCard(currentField) + TEXT_RESET);
                                     } else {
-                                        System.out.println("Not enough money! You have $" + playersBudget.get(firstPlayerName) +
-                                                " and the price is $" + Integer.parseInt(currentField[2]));
+                                        System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(firstPlayerName) +
+                                                " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
                                     }
                                 }
                             } else {
