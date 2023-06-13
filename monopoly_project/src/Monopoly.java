@@ -200,11 +200,11 @@ public class Monopoly {
         //попълване на игралната дъска от файла BoardFields.txt
         String[] board = arrayFromFile("dataBase/BoardFields.txt", 40);
 
-        //попълване на картите Community chest от файла
-        String[] communityChest = arrayFromFile("dataBase/CommunityChest.txt", 15);
+        //попълване на картите Community chest от файла в масив
+        String[] communityChest = arrayFromFile("dataBase/CommunityChest.txt", 16);
 
-        //попълване на картите Chance от файла
-        String[] chance = arrayFromFile("dataBase/Chance.txt", 15);
+        //попълване на картите Chance от файла в масив
+        String[] chance = arrayFromFile("dataBase/Chance.txt", 16);
 
         int counter = 1;
 
@@ -213,6 +213,11 @@ public class Monopoly {
         int secondPlayerFieldNumber = 0;
         int thirdPlayerFieldNumber = 0;
         int fourthPlayerFieldNumber = 0;
+
+        boolean firstPlayerInJail = true;
+        boolean secondPlayerInJail = false;
+        boolean thirdPlayerInJail = false;
+        boolean fourthPlayerInJail = false;
 
         Random firstDice = new Random();
         Random secondDice = new Random();
@@ -224,8 +229,27 @@ public class Monopoly {
             case 1:
                 //първоначално играча получава $1500
                 playersBudget.put(firstPlayerName, 1500);
+                int jailCounter = 0;
 
                 while (numberOfPlayers != 0) {
+
+                    //in JAIL
+                    if (firstPlayerInJail) {
+                        if (firstPlayerSpecialCards.contains("Get Out of Jail Free")) {
+                            firstPlayerInJail = false;
+                            continue;
+                        } else {
+                            jailCounter++;
+                        }
+
+                        if (jailCounter == 3) {
+                            firstPlayerInJail = false;
+                            jailCounter = 0;
+                        }
+                        continue;
+                    }
+
+
 
                     printPlayerStats(firstPlayerName, playersBudget.get(firstPlayerName), firstPlayerRepository, firstPlayerSpecialCards);
                     System.out.println();
@@ -278,6 +302,8 @@ public class Monopoly {
                                 case "Free Parking":
                                     break;
                                 case "Go To Jail":
+                                    firstPlayerFieldNumber = 10;
+                                    firstPlayerInJail = true;
                                     break;
                                 case "Luxury tax":
                                     playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - 100);
