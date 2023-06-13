@@ -1,9 +1,27 @@
+import javax.swing.*;
 import java.io.BufferedReader;
+import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
 public class Monopoly {
+
+    public static String[] arrayFromFile(String filePath, int numbersOfRows) throws IOException {
+
+        BufferedReader bufferedReader = new BufferedReader(new FileReader(filePath));
+        String[] board = new String[numbersOfRows];
+        int index = 0;
+        String line = "";
+
+        while ((line = bufferedReader.readLine()) != null) {
+            board[index] = line;
+            index++;
+        }
+
+        bufferedReader.close();
+        return board;
+    }
 
     public static boolean moneyValidation(int money, int price) {
         return money - price >= 0;
@@ -180,17 +198,13 @@ public class Monopoly {
         List<String> fourthPlayerSpecialCards = new ArrayList<>();
 
         //попълване на игралната дъска от файла BoardFields.txt
-        BufferedReader bufferedReader = new BufferedReader(new FileReader("dataBase/BoardFields.txt"));
-        String[] board = new String[40];
-        int index = 0;
-        String line = "";
+        String[] board = arrayFromFile("dataBase/BoardFields.txt", 40);
 
-        while ((line = bufferedReader.readLine()) != null) {
-            board[index] = line;
-            index++;
-        }
+        //попълване на картите Community chest от файла
+        String[] communityChest = arrayFromFile("dataBase/CommunityChest.txt", 15);
 
-        bufferedReader.close();
+        //попълване на картите Chance от файла
+        String[] chance = arrayFromFile("dataBase/Chance.txt", 15);
 
         int counter = 1;
 
@@ -208,7 +222,8 @@ public class Monopoly {
 
         switch (numberOfPlayers) {
             case 1:
-                playersBudget.put(firstPlayerName, 500);
+                //първоначално играча получава $1500
+                playersBudget.put(firstPlayerName, 1500);
 
                 while (numberOfPlayers != 0) {
 
@@ -244,6 +259,31 @@ public class Monopoly {
                         case 0, 2, 4, 7, 10, 17, 20, 22, 30, 33, 36, 38:
                             fieldCard = otherFieldCard(currentField);
                             System.out.println(fieldCard);
+                            System.out.println("----------");
+                            switch (fieldCard) {
+                                case "START":
+                                    playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) + 200);
+                                    System.out.println("You become $200");
+                                    break;
+                                case "Community Chest":
+                                    break;
+                                case "Income Tax":
+                                    playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - 200);
+                                    System.out.println("Income Tax - $200");
+                                    break;
+                                case "Chance":
+                                    break;
+                                case "Jail - only visit":
+                                    break;
+                                case "Free Parking":
+                                    break;
+                                case "Go To Jail":
+                                    break;
+                                case "Luxury tax":
+                                    playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - 100);
+                                    System.out.println("Income Tax - $100");
+                                    break;
+                            }
                             break;
                         case 1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39:
                             fieldCard = colorFieldCard(currentField);
