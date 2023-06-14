@@ -1,11 +1,269 @@
-import org.w3c.dom.ls.LSOutput;
-
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
 
 public class Monopoly {
+
+    public static void buyCompanyField(String[] currentField, Scanner scanner, String currentPlayer,
+                                       Map<String, Integer> playersBudget, List<String> playersPurchases,
+                                       List<String> playersSpecialCards, Map<String, Integer> playersFieldNumber,
+                                       String[] board) {
+
+        String TEXT_RED = "\u001B[31m";
+        String TEXT_YELLOW = "\u001B[33m";
+        String TEXT_RESET = "\u001B[0m";
+
+        if (currentField[1].equals("for rent") && !currentPlayer.equals(currentField[currentField.length - 1])) {
+
+            System.out.println("Do you want to buy " + currentField[0] + "?");
+            System.out.println("Enter 'yes' or 'no': ");
+
+            String answer = scanner.nextLine();
+            while (!answer.equals("yes") && !answer.equals("no")) {
+                answer = scanner.nextLine();
+            }
+
+            if (answer.equals("yes")) {
+                if (moneyValidation(playersBudget.get(currentPlayer), Integer.parseInt(currentField[2]))) {
+                    currentField[1] = "Sold";
+                    currentField[currentField.length - 1] = currentPlayer;
+                    playersPurchases.add(currentField[0]);
+                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - Integer.parseInt(currentField[2]));
+                    printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases, playersSpecialCards);
+                    System.out.println(TEXT_YELLOW + companyFieldCard(currentField) + TEXT_RESET);
+                    board[playersFieldNumber.get(currentPlayer)] = String.join(", ", currentField);
+                } else {
+                    System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(currentPlayer) +
+                            " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
+                }
+            }
+        } else if (!currentPlayer.equals(currentField[currentField.length - 1])) {
+            String fieldOwner = currentField[3];
+            playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + 50);
+            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 50);
+            System.out.printf("%s pays %s an annuity of $%d%n", currentPlayer, fieldOwner, 50);
+        }
+    }
+
+    public static void buyColorField(String[] currentField, Scanner scanner, String currentPlayer,
+                                     Map<String, Integer> playersBudget, List<String> playersPurchases,
+                                     List<String> playersSpecialCards, Map<String, Integer> playersFieldNumber,
+                                     String[] board) {
+
+        String TEXT_RED = "\u001B[31m";
+        String TEXT_CYAN = "\u001B[36m";
+        String TEXT_RESET = "\u001B[0m";
+
+        if (currentField[1].equals("for rent") && !currentPlayer.equals(currentField[currentField.length - 1])) {
+
+            System.out.println("Do you want to buy " + currentField[0] + "?");
+            String answer = enterYesOrNo(scanner);
+
+            if (answer.equals("yes")) {
+                if (moneyValidation(playersBudget.get(currentPlayer), Integer.parseInt(currentField[2]))) {
+                    currentField[1] = "Sold";
+                    currentField[currentField.length - 1] = currentPlayer;
+                    playersPurchases.add(currentField[0]);
+                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - Integer.parseInt(currentField[2]));
+                    printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases, playersSpecialCards);
+                    System.out.println(TEXT_CYAN + colorFieldCard(currentField) + TEXT_RESET);
+                    board[playersFieldNumber.get(currentPlayer)] = String.join(", ", currentField);
+                } else {
+                    System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(currentPlayer) +
+                            " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
+                }
+            }
+
+        } else if (!currentPlayer.equals(currentField[currentField.length - 1])) {
+            String fieldOwner = currentField[currentField.length - 1];
+            int annuity = Integer.parseInt(currentField[3]);
+            playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + annuity);
+            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - annuity);
+            System.out.printf("%s pays %s an annuity of $%d%n", currentPlayer, fieldOwner, annuity);
+        }
+    }
+
+    public static void switchChance(String chanceRow, Map<String, Integer> playersFieldNumber,
+                                    String currentPlayer, Map<String, Integer> playersBudget,
+                                    List<String> playersSpecialCards, Map<String, Boolean> playersInJail,
+                                    String[] players) {
+        switch (chanceRow) {
+            case "Advance to Boardwalk":
+                playersFieldNumber.put(currentPlayer, 38);
+                System.out.println(currentPlayer + ", you go to Boardwalk. Do nothing!");
+                break;
+            case "Advance to START (Collect $200)":
+                playersFieldNumber.put(currentPlayer, 0);
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                break;
+            case "Advance to Illinois Avenue. If you pass START, collect $200":
+                int currentPosition = playersFieldNumber.get(currentPlayer);
+                if (currentPosition == 36) {
+                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                    System.out.println("Collect $200");
+                }
+                playersFieldNumber.put(currentPlayer, 24);
+                System.out.println(currentPosition + ", you're going to Illinois Avenue");
+                break;
+            case "Advance to St. Charles Place. If you pass START, collect $200":
+                currentPosition = playersFieldNumber.get(currentPlayer);
+                if (currentPosition == 36 || currentPosition == 22) {
+                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                    System.out.println(currentPlayer + ", you passed the Start and collect $200");
+                }
+                playersFieldNumber.put(currentPlayer, 11);
+                System.out.println(currentPlayer + ", you're going to St. Charles Place");
+                break;
+            case "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled":
+                currentPosition = playersFieldNumber.get(currentPlayer);
+                if (currentPosition == 7) {
+                    playersFieldNumber.put(currentPlayer, 25);
+                    System.out.println(currentPlayer + ", you went to the nearest Railroad - B. & O. Railroad");
+                    //TODO
+                } else if (currentPosition == 22) {
+                    playersFieldNumber.put(currentPlayer, 25);
+                    System.out.println(currentPlayer + ", you went to the nearest Railroad - B. & O. Railroad");
+                    //TODO
+                } else {
+                    playersFieldNumber.put(currentPlayer, 5);
+                    System.out.println(currentPlayer + ", you went to the nearest Railroad - Reading RailRoad");
+                    System.out.println("You passed a Start but you don't get $200");
+                }
+                break;
+            case "Advance token to nearest Utility. If unowned, you may buy it from the Bank.":
+                currentPosition = playersFieldNumber.get(currentPlayer);
+
+                if (currentPosition == 22) {
+                    playersFieldNumber.put(currentPlayer, 28);
+                    System.out.println(currentPlayer + ", you went to Water works");
+                    //TODO
+                } else {
+                    playersFieldNumber.put(currentPlayer, 12);
+                    System.out.println(currentPlayer + ", you went to Electric Company");
+                    //TODO
+                }
+                break;
+            case "Bank pays you dividend of $50":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 50);
+                System.out.println(currentPlayer + ", you received $50");
+                break;
+            case "Get Out of Jail Free":
+                playersSpecialCards.add(chanceRow);
+                System.out.println(currentPlayer + ", you added the card 'Get Out of Jail Free' to your Special Card Collection");
+                break;
+            case "Go Back 3 Spaces":
+                playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 3);
+                System.out.println(currentPlayer + ", you moved back three spaces");
+                break;
+            case "Go to Jail. Go directly to Jail, do not pass START, do not collect $200":
+                playersFieldNumber.put(currentPlayer, 10);
+                playersInJail.put(currentPlayer, true);
+                System.out.println(currentPlayer + ", you are in Jail");
+                break;
+            case "Make general repairs on all your property. For each house pay $25. For each hotel pay $100":
+                //TODO
+                break;
+            case "Speeding fine $15":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 15);
+                System.out.println(currentPlayer + ", you paid $15");
+                break;
+            case "Take a trip to Reading Railroad. If you pass START, collect $200":
+                playersFieldNumber.put(currentPlayer, 5);
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                System.out.println(currentPlayer + ", you move to Reading Railroad");
+                System.out.println("You passed a Start and get $200");
+                break;
+            case "You have been elected Chairman of the Board. Pay each player $50":
+                int sum = 0;
+                for (int j = 0; j < players.length; j++) {
+                    String current = players[j];
+                    playersBudget.put(current, playersBudget.get(current) + 50);
+                    sum += 50;
+                }
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - sum);
+                System.out.println(currentPlayer + ", you paid $" + sum);
+                break;
+            case "Your building loan matures. Collect $150":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 150);
+                System.out.println(currentPlayer + ", you collect $150");
+                break;
+        }
+    }
+
+    public static void switchCommunityChest(String communityChestRow,
+                                            String currentPlayer,
+                                            Map<String, Integer> playersBudget,
+                                            Map<String, Integer> playersFieldNumber,
+                                            List<String> playersSpecialCards,
+                                            Map<String, Boolean> playersInJail,
+                                            String[] players) {
+        switch (communityChestRow) {
+            case "Advance to START(Collect $200)":
+                playersFieldNumber.put(currentPlayer, 0);
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                break;
+            case "Bank error in your favor. Collect $200":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                System.out.println(currentPlayer + ", you received $200");
+                break;
+            case "Doctor’s fee. Pay $50",
+                    "Pay school fees of $50":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 50);
+                System.out.println(currentPlayer + ", you pay $50");
+                break;
+            case "From sale of stock you get $50":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 50);
+                System.out.println(currentPlayer + ", you received $50");
+                break;
+            case "Get Out of Jail Free":
+                playersSpecialCards.add(communityChestRow);
+                System.out.println(currentPlayer + ", you added the card 'Get Out of Jail Free' to your Special Card Collection");
+                break;
+            case "Go to Jail. Go directly to jail, do not pass Go, do not collect $200":
+                playersFieldNumber.put(currentPlayer, 10);
+                playersInJail.put(currentPlayer, true);
+                System.out.println(currentPlayer + ", you are in Jail");
+                break;
+            case "Holiday fund matures. Receive $100",
+                    "Life insurance matures. Collect $100",
+                    "You inherit $100":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 100);
+                System.out.println(currentPlayer + ", you received $100");
+                break;
+            case "Income tax refund. Collect $20":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 20);
+                System.out.println(currentPlayer + ", you received $20");
+                break;
+            case "It is your birthday. Collect $10 from every player":
+                int sum = 0;
+                for (int k = 0; k < players.length; k++) {
+                    String current = players[k];
+                    if (!current.equals(currentPlayer)) {
+                        playersBudget.put(current, playersBudget.get(current) - 10);
+                        sum += 10;
+                    }
+                }
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + sum);
+                System.out.printf("%s, you received $%d%n", currentPlayer, sum);
+                break;
+            case "Pay hospital fees of $100":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 100);
+                System.out.println(currentPlayer + ", you pay $100");
+                break;
+            case "Receive $25 consultancy fee":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 25);
+                System.out.println(currentPlayer + ", you received $25");
+                break;
+            case "You are assessed for street repair. $40 per house. $115 per hotel":
+                //TODO:
+                break;
+            case "You have won second prize in a beauty contest. Collect $10":
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 10);
+                System.out.println(currentPlayer + ", you received $10");
+                break;
+        }
+    }
 
     public static String[] arrayFromFile(String filePath, int numbersOfRows) throws IOException {
 
@@ -252,6 +510,7 @@ public class Monopoly {
     }
 
     public static void goTroughTheStart(String currentPlayer, Scanner scanner) {
+        System.out.println("-----------");
         System.out.println(currentPlayer + ", you passed the Start field. You get $200.");
         System.out.println("Press 'Enter' to continue.");
         String playerRoll = scanner.nextLine();
@@ -359,6 +618,7 @@ public class Monopoly {
                     fieldCard = otherFieldCard(currentField);
                     System.out.println(fieldCard);
                     System.out.println("----------");
+
                     switch (currentField[0]) {
                         case "START":
                             System.out.println("You become $200");
@@ -367,71 +627,9 @@ public class Monopoly {
                             String communityChestRow = communityChestCards.poll();
                             System.out.println(communityChestRow);
 
-                            switch (communityChestRow) {
-                                case "Advance to START(Collect $200)":
-                                    playersFieldNumber.put(currentPlayer, 0);
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
-                                    break;
-                                case "Bank error in your favor. Collect $200":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
-                                    System.out.println(currentPlayer + ", you received $200");
-                                    break;
-                                case "Doctor’s fee. Pay $50",
-                                        "Pay school fees of $50":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 50);
-                                    System.out.println(currentPlayer + ", you pay $50");
-                                    break;
-                                case "From sale of stock you get $50":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 50);
-                                    System.out.println(currentPlayer + ", you received $50");
-                                    break;
-                                case "Get Out of Jail Free":
-                                    playersSpecialCards.get(currentPlayer).add(communityChestRow);
-                                    System.out.println(currentPlayer + ", you added the card 'Get Out of Jail Free' to your Special Card Collection");
-                                    break;
-                                case "Go to Jail. Go directly to jail, do not pass Go, do not collect $200":
-                                    playersFieldNumber.put(currentPlayer, 10);
-                                    playersInJail.put(currentPlayer, true);
-                                    System.out.println(currentPlayer + ", you are in Jail");
-                                    break;
-                                case "Holiday fund matures. Receive $100",
-                                        "Life insurance matures. Collect $100",
-                                        "You inherit $100":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 100);
-                                    System.out.println(currentPlayer + ", you received $100");
-                                    break;
-                                case "Income tax refund. Collect $20":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 20);
-                                    System.out.println(currentPlayer + ", you received $20");
-                                    break;
-                                case "It is your birthday. Collect $10 from every player":
-                                    int sum = 0;
-                                    for (int k = 0; k < players.length; k++) {
-                                        String current = players[k];
-                                        if (!current.equals(currentPlayer)) {
-                                            playersBudget.put(current, playersBudget.get(current) - 10);
-                                            sum += 10;
-                                        }
-                                    }
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + sum);
-                                    System.out.printf("%s, you received $%d%n", currentPlayer, sum);
-                                    break;
-                                case "Pay hospital fees of $100":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 100);
-                                    System.out.println(currentPlayer + ", you pay $100");
-                                    break;
-                                case "Receive $25 consultancy fee":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 25);
-                                    System.out.println(currentPlayer + ", you received $25");
-                                    break;
-                                case "You are assessed for street repair. $40 per house. $115 per hotel":
-                                    //TODO:
-                                    break;
-                                case "You have won second prize in a beauty contest. Collect $10":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 10);
-                                    System.out.println(currentPlayer + ", you received $10");
-                                    break;
-                            }
+                            switchCommunityChest(communityChestRow, currentPlayer, playersBudget, playersFieldNumber,
+                                    playersSpecialCards.get(currentPlayer), playersInJail, players);
+
                             communityChestCards.offer(communityChestRow);
                             break;
                         case "Income Tax":
@@ -442,107 +640,8 @@ public class Monopoly {
                             String chanceRow = chanceCards.poll();
                             System.out.println(chanceRow);
 
-                            switch (chanceRow) {
-                                case "Advance to Boardwalk":
-                                    playersFieldNumber.put(currentPlayer, 38);
-                                    System.out.println(currentPlayer + ", you go to Boardwalk. Do nothing!");
-                                    break;
-                                case "Advance to START (Collect $200)":
-                                    playersFieldNumber.put(currentPlayer, 0);
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
-                                    break;
-                                case "Advance to Illinois Avenue. If you pass START, collect $200":
-                                    int currentPosition = playersFieldNumber.get(currentPlayer);
-                                    if (currentPosition == 36) {
-                                      playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
-                                        System.out.println("Collect $200");
-                                    }
-                                    playersFieldNumber.put(currentPlayer, 24);
-                                    System.out.println(currentPosition + ", you're going to Illinois Avenue");
-                                    break;
-                                case "Advance to St. Charles Place. If you pass START, collect $200":
-                                    currentPosition = playersFieldNumber.get(currentPlayer);
-                                    if (currentPosition == 36 || currentPosition == 22) {
-                                        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
-                                        System.out.println(currentPlayer + ", you passed the Start and collect $200");
-                                    }
-                                    playersFieldNumber.put(currentPlayer, 11);
-                                    System.out.println(currentPlayer + ", you're going to St. Charles Place");
-                                    break;
-                                case "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled":
-                                    currentPosition = playersFieldNumber.get(currentPlayer);
-                                    if (currentPosition == 7) {
-                                        playersFieldNumber.put(currentPlayer, 25);
-                                        System.out.println(currentPlayer + ", you went to the nearest Railroad - B. & O. Railroad");
-                                        //TODO
-                                    } else if (currentPosition == 22) {
-                                        playersFieldNumber.put(currentPlayer, 25);
-                                        System.out.println(currentPlayer + ", you went to the nearest Railroad - B. & O. Railroad");
-                                        //TODO
-                                    } else {
-                                        playersFieldNumber.put(currentPlayer, 5);
-                                        System.out.println(currentPlayer + ", you went to the nearest Railroad - Reading RailRoad");
-                                        System.out.println("You passed a Start but you don't get $200");
-                                    }
-                                    break;
-                                case "Advance token to nearest Utility. If unowned, you may buy it from the Bank.":
-                                    currentPosition = playersFieldNumber.get(currentPlayer);
-
-                                    if (currentPosition == 22) {
-                                        playersFieldNumber.put(currentPlayer, 28);
-                                        System.out.println(currentPlayer + ", you went to Water works");
-                                        //TODO
-                                    } else {
-                                        playersFieldNumber.put(currentPlayer, 12);
-                                        System.out.println(currentPlayer + ", you went to Electric Company");
-                                        //TODO
-                                    }
-                                    break;
-                                case "Bank pays you dividend of $50":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 50);
-                                    System.out.println(currentPlayer + ", you received $50");
-                                    break;
-                                case "Get Out of Jail Free":
-                                    playersSpecialCards.get(currentPlayer).add(chanceRow);
-                                    System.out.println(currentPlayer + ", you added the card 'Get Out of Jail Free' to your Special Card Collection");
-                                    break;
-                                case "Go Back 3 Spaces":
-                                    playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 3);
-                                    System.out.println(currentPlayer + ", you moved back three spaces");
-                                    break;
-                                case "Go to Jail. Go directly to Jail, do not pass START, do not collect $200":
-                                    playersFieldNumber.put(currentPlayer, 10);
-                                    playersInJail.put(currentPlayer, true);
-                                    System.out.println(currentPlayer + ", you are in Jail");
-                                    break;
-                                case "Make general repairs on all your property. For each house pay $25. For each hotel pay $100":
-                                    //TODO
-                                    break;
-                                case "Speeding fine $15":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 15);
-                                    System.out.println(currentPlayer + ", you paid $15");
-                                    break;
-                                case "Take a trip to Reading Railroad. If you pass START, collect $200":
-                                    playersFieldNumber.put(currentPlayer, 5);
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
-                                    System.out.println(currentPlayer + ", you move to Reading Railroad");
-                                    System.out.println("You passed a Start and get $200");
-                                    break;
-                                case "You have been elected Chairman of the Board. Pay each player $50":
-                                    int sum = 0;
-                                    for (int j = 0; j < players.length; j++) {
-                                        String current = players[j];
-                                        playersBudget.put(current, playersBudget.get(current) + 50);
-                                        sum += 50;
-                                    }
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - sum);
-                                    System.out.println(currentPlayer + ", you paid $" + sum);
-                                    break;
-                                case "Your building loan matures. Collect $150":
-                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 150);
-                                    System.out.println(currentPlayer + ", you collect $150");
-                                    break;
-                            }
+                            switchChance(chanceRow, playersFieldNumber, currentPlayer, playersBudget,
+                                    playersSpecialCards.get(currentPlayer), playersInJail, players);
 
                             chanceCards.offer(chanceRow);
                             break;
@@ -570,72 +669,28 @@ public class Monopoly {
                     fieldCard = colorFieldCard(currentField);
                     System.out.println(TEXT_CYAN + fieldCard + TEXT_RESET);
 
-                    if (currentField[1].equals("for rent")) {
-                        System.out.println("Do you want to buy " + currentField[0] + "?");
-                        String answer = enterYesOrNo(scanner);
-
-                        if (answer.equals("yes")) {
-                            if (moneyValidation(playersBudget.get(currentPlayer), Integer.parseInt(currentField[2]))) {
-                                currentField[1] = "Sold";
-                                currentField[12] = currentPlayer;
-                                playersPurchases.get(currentPlayer).add(currentField[0]);
-                                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - Integer.parseInt(currentField[2]));
-                                printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer));
-                                System.out.println(TEXT_CYAN + colorFieldCard(currentField) + TEXT_RESET);
-                                board[playersFieldNumber.get(currentPlayer)] = String.join(", ", currentField);
-                            } else {
-                                System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(currentPlayer) +
-                                        " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
-                            }
-                        }
-                    } else {
-                        String fieldOwner = currentField[currentField.length - 1];
-                        int annuity = Integer.parseInt(currentField[3]);
-                        playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + annuity);
-                        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - annuity);
-                        System.out.printf("%s pays %s an annuity of $%d%n", currentPlayer, fieldOwner, annuity);
-                    }
+                    buyColorField(currentField, scanner, currentPlayer,
+                            playersBudget, playersPurchases.get(currentPlayer),
+                            playersSpecialCards.get(currentPlayer), playersFieldNumber,
+                            board);
                     break;
 
                 case 5, 12, 15, 25, 28, 35:
                     fieldCard = companyFieldCard(currentField);
                     System.out.println(TEXT_YELLOW + fieldCard + TEXT_RESET);
 
-                    if (currentField[1].equals("for rent")) {
-                        System.out.println("Do you want to buy " + currentField[0] + "?");
-                        System.out.println("Enter 'yes' or 'no': ");
-                        String answer = scanner.nextLine();
-                        while (!answer.equals("yes") && !answer.equals("no")) {
-                            answer = scanner.nextLine();
-                        }
-
-                        if (answer.equals("yes")) {
-                            if (moneyValidation(playersBudget.get(currentPlayer), Integer.parseInt(currentField[2]))) {
-                                currentField[1] = "Sold";
-                                currentField[3] = currentPlayer;
-                                playersPurchases.get(currentPlayer).add(currentField[0]);
-                                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - Integer.parseInt(currentField[2]));
-                                printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer));
-                                System.out.println(TEXT_YELLOW + companyFieldCard(currentField) + TEXT_RESET);
-                                board[playersFieldNumber.get(currentPlayer)] = String.join(", ", currentField);
-                            } else {
-                                System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(currentPlayer) +
-                                        " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
-                            }
-                        }
-                    } else {
-                        String fieldOwner = currentField[3];
-                        playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + 50);
-                        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 50);
-                        System.out.printf("%s pays %s an annuity of $%d%n", currentPlayer, fieldOwner, 50);
-                    }
+                    buyCompanyField(currentField, scanner, currentPlayer, playersBudget,
+                            playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer),
+                            playersFieldNumber, board);
 
                     break;
             }
 
             if (i == players.length - 1) {
                 i = -1;
+                System.out.println("Next turn!");
             } else {
+                System.out.println("-----------");
                 System.out.println("Next player!");
             }
         }

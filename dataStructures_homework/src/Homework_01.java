@@ -17,7 +17,7 @@ public class Homework_01 {
     public static List<Integer> generateList(int n) {
         List<Integer> numbers = new ArrayList<>();
         for (int i = 0; i <= n; i++) {
-            if (i % 2 == 0 || i % 5 == 0) {
+            if (i % 2 == 0 && i % 5 == 0) {
                 numbers.add(i);
             }
         }
