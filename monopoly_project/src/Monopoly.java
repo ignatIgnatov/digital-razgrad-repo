@@ -439,39 +439,109 @@ public class Monopoly {
 
                             switch (chanceRow) {
                                 case "Advance to Boardwalk":
+                                    playersFieldNumber.put(currentPlayer, 38);
+                                    System.out.println(currentPlayer + ", you go to Boardwalk. Do nothing!");
                                     break;
                                 case "Advance to START (Collect $200)":
+                                    playersFieldNumber.put(currentPlayer, 0);
+                                    //TODO: трябва да тествам дали получава $200
                                     break;
                                 case "Advance to Illinois Avenue. If you pass START, collect $200":
+                                    int currentPosition = playersFieldNumber.get(currentPlayer);
+                                    if (currentPosition == 36) {
+                                      playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                                        System.out.println("Collect $200");
+                                    }
+                                    playersFieldNumber.put(currentPlayer, 24);
+                                    System.out.println(currentPosition + ", you're going to Illinois Avenue");
                                     break;
                                 case "Advance to St. Charles Place. If you pass START, collect $200":
+                                    currentPosition = playersFieldNumber.get(currentPlayer);
+                                    if (currentPosition == 36 || currentPosition == 22) {
+                                        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                                        System.out.println("Collect $200");
+                                    }
+                                    playersFieldNumber.put(currentPlayer, 11);
+                                    System.out.println(currentPosition + ", you're going to St. Charles Place");
                                     break;
                                 case "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled":
+                                    currentPosition = playersFieldNumber.get(currentPlayer);
+                                    if (currentPosition == 7) {
+                                        playersFieldNumber.put(currentPlayer, 25);
+                                        System.out.println(currentPlayer + ", you went to the nearest Railroad - B. & O. Railroad");
+                                        //TODO
+                                    } else if (currentPosition == 22) {
+                                        playersFieldNumber.put(currentPlayer, 25);
+                                        System.out.println(currentPlayer + ", you went to the nearest Railroad - B. & O. Railroad");
+                                        //TODO
+                                    } else {
+                                        playersFieldNumber.put(currentPlayer, 5);
+                                        System.out.println(currentPlayer + ", you went to the nearest Railroad - Reading RailRoad");
+                                        System.out.println("You passed a Start but you don't get $200");
+                                    }
                                     break;
-                                case "Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total ten times amount thrown.":
+                                case "Advance token to nearest Utility. If unowned, you may buy it from the Bank.":
+                                    currentPosition = playersFieldNumber.get(currentPlayer);
+
+                                    if (currentPosition == 22) {
+                                        playersFieldNumber.put(currentPlayer, 28);
+                                        System.out.println(currentPlayer + ", you went to Water works");
+                                        //TODO
+                                    } else {
+                                        playersFieldNumber.put(currentPlayer, 12);
+                                        System.out.println(currentPlayer + ", you went to Electric Company");
+                                        //TODO
+                                    }
                                     break;
                                 case "Bank pays you dividend of $50":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 50);
+                                    System.out.println(currentPlayer + ", you received $50");
                                     break;
                                 case "Get Out of Jail Free":
+                                    playersSpecialCards.get(currentPlayer).add(chanceRow);
+                                    System.out.println(currentPlayer + ", you added the card 'Get Out of Jail Free' to your Special Card Collection");
                                     break;
                                 case "Go Back 3 Spaces":
+                                    playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 3);
+                                    System.out.println(currentPlayer + ", you moved back three spaces");
                                     break;
                                 case "Go to Jail. Go directly to Jail, do not pass START, do not collect $200":
+                                    playersFieldNumber.put(currentPlayer, 10);
+                                    playersInJail.put(currentPlayer, true);
+                                    System.out.println(currentPlayer + ", you are in Jail");
                                     break;
                                 case "Make general repairs on all your property. For each house pay $25. For each hotel pay $100":
+                                    //TODO
                                     break;
                                 case "Speeding fine $15":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 15);
+                                    System.out.println(currentPlayer + ", you paid $15");
                                     break;
                                 case "Take a trip to Reading Railroad. If you pass START, collect $200":
+                                    playersFieldNumber.put(currentPlayer, 5);
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                                    System.out.println(currentPlayer + ", you move to Reading Railroad");
+                                    System.out.println("You passed a Start and get $200");
                                     break;
                                 case "You have been elected Chairman of the Board. Pay each player $50":
+                                    int sum = 0;
+                                    for (int j = 0; j < players.length; j++) {
+                                        String current = players[j];
+                                        playersBudget.put(current, playersBudget.get(current) + 50);
+                                        sum += 50;
+                                    }
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - sum);
+                                    System.out.println(currentPlayer + ", you paid $" + sum);
                                     break;
                                 case "Your building loan matures. Collect $150":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 150);
+                                    System.out.println(currentPlayer + ", you collect $150");
                                     break;
                             }
+
                             chanceCards.offer(chanceRow);
-                            //TODO: ArrayDeque
                             break;
+
                         case "Jail - only visit":
                             break;
                         case "Free Parking":
