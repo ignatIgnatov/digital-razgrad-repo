@@ -96,15 +96,20 @@ public class Monopoly {
                     numberOfProperty = scanner.nextInt();
                 }
                 String propertyName = properties.get(numberOfProperty - 1);
-                properties.remove(numberOfProperty);
-                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer));
                 String[] currentProperty = findPropertyByName(propertyName, board);
-                currentProperty[1] = "for rent";
-                currentProperty[12] = "none";
                 int indexOfProperty = findIndexOfProperty(propertyName, board);
+
+                properties.remove(numberOfProperty - 1);
+                playersBudget.put(currentPlayer, Integer.parseInt(currentProperty[2]));
+
+                currentProperty[1] = "for rent";
+                currentProperty[currentProperty.length - 1] = "none";
+
                 board[indexOfProperty] = String.join(", ", currentProperty);
 
                 System.out.println("You sold a property " + propertyName);
+                scanner.nextLine();
+
             }
         }
     }
@@ -246,6 +251,17 @@ public class Monopoly {
         return answer;
     }
 
+    public static void goTroughTheStart(String currentPlayer, Scanner scanner) {
+        System.out.println(currentPlayer + ", you go through the Start field. You get $200.");
+        System.out.println("Press 'Enter' to continue.");
+        String playerRoll = scanner.nextLine();
+
+        while (!playerRoll.isEmpty()) {
+            System.out.println("Press 'Enter' to continue.");
+            playerRoll = scanner.nextLine();
+        }
+    }
+
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
@@ -271,7 +287,7 @@ public class Monopoly {
         Map<String, Boolean> playersInJail = new HashMap<>();
 
         for (int i = 0; i < players.length; i++) {
-            playersBudget.put(players[i], 1500);
+            playersBudget.put(players[i], 200);
             playersPurchases.put(players[i], new ArrayList<>());
             playersSpecialCards.put(players[i], new ArrayList<>());
             playersFieldNumber.put(players[i], 0);
@@ -305,7 +321,7 @@ public class Monopoly {
                 }
             }
 
-            printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer));
+            checkForEnoughMoney(currentPlayer, playersBudget, playersPurchases.get(currentPlayer), board, scanner);
 
             moveNumber = rollTheDice(currentPlayer, scanner);
 
@@ -314,7 +330,10 @@ public class Monopoly {
             if (playersFieldNumber.get(currentPlayer) >= 40) {
                 playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 40);
                 playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                goTroughTheStart(currentPlayer, scanner);
             }
+
+            printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer));
 
             String[] currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
 
@@ -419,8 +438,6 @@ public class Monopoly {
 
                     break;
             }
-
-            checkForEnoughMoney(currentPlayer, playersBudget, playersPurchases.get(currentPlayer), board, scanner);
 
             if (i == players.length - 1) {
                 i = -1;
