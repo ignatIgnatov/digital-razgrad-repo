@@ -262,6 +262,14 @@ public class Monopoly {
         }
     }
 
+    public static ArrayDeque<String> convertArrayToDeque(String[] communityChest) {
+        ArrayDeque<String> result = new ArrayDeque<>();
+        for (int j = 0; j < communityChest.length; j++) {
+            result.offer(communityChest[j]);
+        }
+        return result;
+    }
+
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
@@ -299,9 +307,11 @@ public class Monopoly {
 
         //попълване на картите Community chest от файла в масив
         String[] communityChest = arrayFromFile("dataBase/CommunityChest.txt", 16);
+        ArrayDeque<String> communityChestCards = convertArrayToDeque(communityChest);
 
         //попълване на картите Chance от файла в масив
         String[] chance = arrayFromFile("dataBase/Chance.txt", 16);
+        ArrayDeque<String> chanceCards = convertArrayToDeque(chance);
 
         for (int i = 0; i < players.length; i++) {
             String currentPlayer = players[i];
@@ -349,13 +359,117 @@ public class Monopoly {
                             System.out.println("You become $200");
                             break;
                         case "Community Chest":
-                            //TODO: ArrayDeque
+                            String communityChestRow = communityChestCards.poll();
+                            System.out.println(communityChestRow);
+
+                            switch (communityChestRow) {
+                                case "Advance to START(Collect $200)":
+                                    playersFieldNumber.put(currentPlayer, 0);
+                                    //TODO: трябва да проверя дали ще добави към сметката $200
+                                    break;
+                                case "Bank error in your favor. Collect $200":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+                                    System.out.println(currentPlayer + ", you received $200");
+                                    break;
+                                case "Doctor’s fee. Pay $50",
+                                        "Pay school fees of $50":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 50);
+                                    System.out.println(currentPlayer + ", you pay $50");
+                                    break;
+                                case "From sale of stock you get $50":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 50);
+                                    System.out.println(currentPlayer + ", you received $50");
+                                    break;
+                                case "Get Out of Jail Free":
+                                    playersSpecialCards.get(currentPlayer).add(communityChestRow);
+                                    System.out.println(currentPlayer + ", you added the card 'Get Out of Jail Free' to your Special Card Collection");
+                                    break;
+                                case "Go to Jail. Go directly to jail, do not pass Go, do not collect $200":
+                                    playersFieldNumber.put(currentPlayer, 10);
+                                    playersInJail.put(currentPlayer, true);
+                                    System.out.println(currentPlayer + ", you are in Jail");
+                                    break;
+                                case "Holiday fund matures. Receive $100",
+                                        "Life insurance matures. Collect $100",
+                                        "You inherit $100":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 100);
+                                    System.out.println(currentPlayer + ", you received $100");
+                                    break;
+                                case "Income tax refund. Collect $20":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 20);
+                                    System.out.println(currentPlayer + ", you received $20");
+                                    break;
+                                case "It is your birthday. Collect $10 from every player":
+                                    int sum = 0;
+                                    for (int k = 0; k < players.length; k++) {
+                                        String current = players[k];
+                                        if (!current.equals(currentPlayer)) {
+                                            playersBudget.put(current, playersBudget.get(current) - 10);
+                                            sum += 10;
+                                        }
+                                    }
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + sum);
+                                    System.out.printf("%s, you received $%d%n", currentPlayer, sum);
+                                    break;
+                                case "Pay hospital fees of $100":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 100);
+                                    System.out.println(currentPlayer + ", you pay $100");
+                                    break;
+                                case "Receive $25 consultancy fee":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 25);
+                                    System.out.println(currentPlayer + ", you received $25");
+                                    break;
+                                case "You are assessed for street repair. $40 per house. $115 per hotel":
+                                    //TODO:
+                                    break;
+                                case "You have won second prize in a beauty contest. Collect $10":
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 10);
+                                    System.out.println(currentPlayer + ", you received $10");
+                                    break;
+                            }
+                            communityChestCards.offer(communityChestRow);
                             break;
                         case "Income Tax":
                             playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 200);
                             System.out.println("Income Tax - $200");
                             break;
                         case "Chance":
+                            String chanceRow = chanceCards.poll();
+                            System.out.println(chanceRow);
+
+                            switch (chanceRow) {
+                                case "Advance to Boardwalk":
+                                    break;
+                                case "Advance to START (Collect $200)":
+                                    break;
+                                case "Advance to Illinois Avenue. If you pass START, collect $200":
+                                    break;
+                                case "Advance to St. Charles Place. If you pass START, collect $200":
+                                    break;
+                                case "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled":
+                                    break;
+                                case "Advance token to nearest Utility. If unowned, you may buy it from the Bank. If owned, throw dice and pay owner a total ten times amount thrown.":
+                                    break;
+                                case "Bank pays you dividend of $50":
+                                    break;
+                                case "Get Out of Jail Free":
+                                    break;
+                                case "Go Back 3 Spaces":
+                                    break;
+                                case "Go to Jail. Go directly to Jail, do not pass START, do not collect $200":
+                                    break;
+                                case "Make general repairs on all your property. For each house pay $25. For each hotel pay $100":
+                                    break;
+                                case "Speeding fine $15":
+                                    break;
+                                case "Take a trip to Reading Railroad. If you pass START, collect $200":
+                                    break;
+                                case "You have been elected Chairman of the Board. Pay each player $50":
+                                    break;
+                                case "Your building loan matures. Collect $150":
+                                    break;
+                            }
+                            chanceCards.offer(chanceRow);
                             //TODO: ArrayDeque
                             break;
                         case "Jail - only visit":
