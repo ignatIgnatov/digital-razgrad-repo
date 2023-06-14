@@ -78,6 +78,37 @@ public class Monopoly {
         return sb.toString();
     }
 
+    public static void checkForEnoughMoney(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner) {
+        if (playersBudget.get(currentPlayer) <= 0) {
+            System.out.println("You have no money!");
+            System.out.println("Do you want to sell any of your properties?");
+            String answer = enterYesOrNo(scanner);
+            if (answer.equals("yes")) {
+                System.out.println(currentPlayer + ", you have the following properties:");
+                for (int j = 0; j < properties.size(); j++) {
+                    String current = properties.get(j);
+                    System.out.println(j + 1 + ". " + current);
+                }
+                System.out.print("Enter the number of the property you want to sell:");
+                int numberOfProperty = scanner.nextInt();
+                while (numberOfProperty < 1 || numberOfProperty > properties.size()) {
+                    System.out.println("Enter correct number of property:");
+                    numberOfProperty = scanner.nextInt();
+                }
+                String propertyName = properties.get(numberOfProperty - 1);
+                properties.remove(numberOfProperty);
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer));
+                String[] currentProperty = findPropertyByName(propertyName, board);
+                currentProperty[1] = "for rent";
+                currentProperty[12] = "none";
+                int indexOfProperty = findIndexOfProperty(propertyName, board);
+                board[indexOfProperty] = String.join(", ", currentProperty);
+
+                System.out.println("You sold a property " + propertyName);
+            }
+        }
+    }
+
     public static String[] findPropertyByName(String name, String[] board) {
         String result = "";
         for (int i = 0; i < board.length; i++) {
@@ -389,34 +420,7 @@ public class Monopoly {
                     break;
             }
 
-            if (playersBudget.get(currentPlayer) <= 0) {
-                System.out.println("You have no money!");
-                System.out.println("Do you want to sell any of your properties?");
-                String answer = enterYesOrNo(scanner);
-                if (answer.equals("yes")) {
-                    System.out.println(currentPlayer + ", you have the following properties:");
-                    for (int j = 0; j < playersPurchases.get(currentPlayer).size(); j++) {
-                        String current = playersPurchases.get(currentPlayer).get(j);
-                        System.out.println(j + 1 + ". " + current);
-                    }
-                    System.out.print("Enter the number of the property you want to sell:");
-                    int numberOfProperty = scanner.nextInt();
-                    while (numberOfProperty < 1 || numberOfProperty > playersPurchases.get(currentPlayer).size()) {
-                        System.out.println("Enter correct number of property:");
-                        numberOfProperty = scanner.nextInt();
-                    }
-                    String propertyName = playersPurchases.get(currentPlayer).get(numberOfProperty - 1);
-                    playersPurchases.get(currentPlayer).remove(numberOfProperty);
-                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer));
-                    String[] currentProperty = findPropertyByName(propertyName, board);
-                    currentProperty[1] = "for rent";
-                    currentProperty[12] = "none";
-                    int indexOfProperty = findIndexOfProperty(propertyName, board);
-                    board[indexOfProperty] = String.join(", ", currentProperty);
-
-                    System.out.println("You sold a property " + propertyName);
-                }
-            }
+            checkForEnoughMoney(currentPlayer, playersBudget, playersPurchases.get(currentPlayer), board, scanner);
 
             if (i == players.length - 1) {
                 i = -1;
