@@ -1,3 +1,5 @@
+import org.w3c.dom.ls.LSOutput;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -74,6 +76,28 @@ public class Monopoly {
         sb.append("----------").append(System.lineSeparator());
 
         return sb.toString();
+    }
+
+    public static String[] findPropertyByName(String name, String[] board) {
+        String result = "";
+        for (int i = 0; i < board.length; i++) {
+            String[] currentField = board[i].split(", ");
+            if (currentField[0].equals(name)) {
+                result = String.join(", ", currentField);
+            }
+        }
+        return result.split(", ");
+    }
+
+    public static int findIndexOfProperty(String name, String[] board) {
+        int index = 0;
+        for (int i = 0; i < board.length; i++) {
+            String[] currentField = board[i].split(", ");
+            if (currentField[0].equals(name)) {
+                index = i;
+            }
+        }
+        return index;
     }
 
     public static void printPlayerStats(String name, int money, List<String> purchases, List<String> specialCards) {
@@ -178,6 +202,17 @@ public class Monopoly {
         System.out.println("Second dice: " + secondDiceResult);
 
         return firstDiceResult + secondDiceResult;
+    }
+
+    public static String enterYesOrNo(Scanner scanner) {
+        System.out.println("Enter 'yes' or 'no': ");
+        String answer = scanner.nextLine();
+
+        while (!answer.equals("yes") && !answer.equals("no")) {
+            System.out.println("Enter 'yes' or 'no': ");
+            answer = scanner.nextLine();
+        }
+        return answer;
     }
 
     public static void main(String[] args) throws IOException {
@@ -293,13 +328,7 @@ public class Monopoly {
 
                     if (currentField[1].equals("for rent")) {
                         System.out.println("Do you want to buy " + currentField[0] + "?");
-                        System.out.println("Enter 'yes' or 'no': ");
-                        String answer = scanner.nextLine();
-
-                        while (!answer.equals("yes") && !answer.equals("no")) {
-                            System.out.println("Enter 'yes' or 'no': ");
-                            answer = scanner.nextLine();
-                        }
+                        String answer = enterYesOrNo(scanner);
 
                         if (answer.equals("yes")) {
                             if (moneyValidation(playersBudget.get(currentPlayer), Integer.parseInt(currentField[2]))) {
@@ -359,6 +388,36 @@ public class Monopoly {
 
                     break;
             }
+
+            if (playersBudget.get(currentPlayer) <= 0) {
+                System.out.println("You have no money!");
+                System.out.println("Do you want to sell any of your properties?");
+                String answer = enterYesOrNo(scanner);
+                if (answer.equals("yes")) {
+                    System.out.println(currentPlayer + ", you have the following properties:");
+                    for (int j = 0; j < playersPurchases.get(currentPlayer).size(); j++) {
+                        String current = playersPurchases.get(currentPlayer).get(j);
+                        System.out.println(j + 1 + ". " + current);
+                    }
+                    System.out.print("Enter the number of the property you want to sell:");
+                    int numberOfProperty = scanner.nextInt();
+                    while (numberOfProperty < 1 || numberOfProperty > playersPurchases.get(currentPlayer).size()) {
+                        System.out.println("Enter correct number of property:");
+                        numberOfProperty = scanner.nextInt();
+                    }
+                    String propertyName = playersPurchases.get(currentPlayer).get(numberOfProperty - 1);
+                    playersPurchases.get(currentPlayer).remove(numberOfProperty);
+                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer));
+                    String[] currentProperty = findPropertyByName(propertyName, board);
+                    currentProperty[1] = "for rent";
+                    currentProperty[12] = "none";
+                    int indexOfProperty = findIndexOfProperty(propertyName, board);
+                    board[indexOfProperty] = String.join(", ", currentProperty);
+
+                    System.out.println("You sold a property " + propertyName);
+                }
+            }
+
             if (i == players.length - 1) {
                 i = -1;
             } else {
