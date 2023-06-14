@@ -1,6 +1,4 @@
-import javax.swing.*;
 import java.io.BufferedReader;
-import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.io.IOException;
 import java.util.*;
@@ -79,8 +77,8 @@ public class Monopoly {
     }
 
     public static void printPlayerStats(String name, int money, List<String> purchases, List<String> specialCards) {
-        String TEXT_GREEN  = "\u001B[32m";
-        String TEXT_RESET  = "\u001B[0m";
+        String TEXT_GREEN = "\u001B[32m";
+        String TEXT_RESET = "\u001B[0m";
         System.out.println("-----------------------------------");
         System.out.printf(TEXT_GREEN + "%s's statistic: %n", name);
         System.out.println("Money: " + "$" + money);
@@ -91,111 +89,128 @@ public class Monopoly {
         System.out.println("-----------------------------------");
     }
 
-    public static void checkForEmptyName(String name, Scanner scanner) {
-        while (name.trim().isEmpty()) {
+    public static String checkForEmptyName(String name, Scanner scanner) {
+        while (name == null || name.trim().isEmpty()) {
             System.out.print("The name can't be empty. Enter player name: ");
             name = scanner.nextLine();
         }
+        return name;
     }
 
-    public static void checkForSameName(String name1, String name2, Scanner scanner) {
-        while (name1.equals(name2)) {
-            System.out.print("This name is already taken. Enter another name: ");
-            name1 = scanner.nextLine();
+    public static String checkForSameName(String currentName, String[] names, Scanner scanner) {
+        for (int i = 0; i < names.length; ) {
+            if (currentName.equals(names[i])) {
+                System.out.print("This name is already taken. Enter another name: ");
+                currentName = scanner.nextLine();
+                currentName = checkForEmptyName(currentName, scanner);
+                i = 0;
+            } else {
+                i++;
+            }
         }
+        return currentName;
     }
 
-    public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-
+    public static void printStartOfTheGame() {
         String TEXT_RED = "\u001B[31m";
-        String TEXT_CYAN   = "\u001B[36m";
-        String TEXT_YELLOW = "\u001B[33m";
         String TEXT_RESET = "\u001B[0m";
 
         System.out.println(TEXT_RED + "   *******************" + TEXT_RESET);
         System.out.println(TEXT_RED + "****" + TEXT_RESET + " M O N O P O L Y " + TEXT_RED + "****" + TEXT_RESET);
         System.out.println(TEXT_RED + "   *******************" + TEXT_RESET);
         System.out.println();
-
         System.out.println("Hello friend!");
         System.out.print("Enter a number of players (1-4): ");
-        int numberOfPlayers = Integer.parseInt(scanner.nextLine());
-        while (numberOfPlayers < 1 || numberOfPlayers > 4) {
-            System.out.print("Enter valid number of players (1-4): ");
-            numberOfPlayers = Integer.parseInt(scanner.nextLine());
-        }
+    }
 
-        System.out.print("Enter Player 1 name: ");
-        String firstPlayerName = scanner.nextLine();
-        checkForEmptyName(firstPlayerName, scanner);
-
-        String secondPlayerName = "";
-        String thirdPlayerName = "";
-        String fourthPlayerName = "";
-
-        boolean firstPlayerInGame = true;
-        boolean secondPlayerInGame = false;
-        boolean thirdPlayerInGame = false;
-        boolean fourthPlayerInGame = false;
-
-        switch (numberOfPlayers) {
-            case 2:
-                secondPlayerInGame = true;
-                System.out.print("Enter Player 2 name: ");
-                secondPlayerName = scanner.nextLine();
-                checkForEmptyName(secondPlayerName, scanner);
-                checkForSameName(secondPlayerName, firstPlayerName, scanner);
-                break;
-            case 3:
-                secondPlayerInGame = true;
-                System.out.print("Enter Player 2 name: ");
-                secondPlayerName = scanner.nextLine();
-                checkForEmptyName(secondPlayerName, scanner);
-                checkForSameName(secondPlayerName, firstPlayerName, scanner);
-                thirdPlayerInGame = true;
-                System.out.print("Enter Player 3 name: ");
-                thirdPlayerName = scanner.nextLine();
-                checkForEmptyName(thirdPlayerName, scanner);
-                checkForSameName(thirdPlayerName, secondPlayerName, scanner);
-                break;
-            case 4:
-                secondPlayerInGame = true;
-                System.out.print("Enter Player 2 name: ");
-                secondPlayerName = scanner.nextLine();
-                checkForEmptyName(secondPlayerName, scanner);
-                checkForSameName(secondPlayerName, firstPlayerName, scanner);
-                thirdPlayerInGame = true;
-                System.out.print("Enter Player 3 name: ");
-                thirdPlayerName = scanner.nextLine();
-                checkForEmptyName(thirdPlayerName, scanner);
-                checkForSameName(thirdPlayerName, secondPlayerName, scanner);
-                fourthPlayerInGame = true;
-                System.out.print("Enter Player 4 name: ");
-                fourthPlayerName = scanner.nextLine();
-                checkForEmptyName(fourthPlayerName, scanner);
-                checkForSameName(fourthPlayerName, thirdPlayerName, scanner);
-                break;
-        }
-
-
+    public static void printStart() {
+        String TEXT_RED = "\u001B[31m";
+        String TEXT_RESET = "\u001B[0m";
         System.out.println();
         System.out.println(TEXT_RED + "   *********");
         System.out.println("**** START ****");
         System.out.println("   *********" + TEXT_RESET);
         System.out.println();
+    }
+
+    public static int enterNumberOfPlayers(Scanner scanner) {
+        int numberOfPlayers = Integer.parseInt(scanner.nextLine());
+        while (numberOfPlayers < 1 || numberOfPlayers > 4) {
+            System.out.print("Enter valid number of players (1-4): ");
+            numberOfPlayers = Integer.parseInt(scanner.nextLine());
+        }
+        return numberOfPlayers;
+    }
+
+    public static void fillPlayerNames(String[] players, Scanner scanner) {
+        for (int i = 0; i < players.length; i++) {
+            System.out.printf("Enter Player %d name: ", i + 1);
+            String currentName = scanner.nextLine();
+            currentName = checkForEmptyName(currentName, scanner);
+
+            if (i > 0) {
+                currentName = checkForSameName(currentName, players, scanner);
+            }
+
+            players[i] = currentName;
+        }
+    }
+
+    public static int rollTheDice(String currentPlayer, Scanner scanner) {
+        Random firstDice = new Random();
+        Random secondDice = new Random();
+
+        int firstDiceResult = 0;
+        int secondDiceResult = 0;
+
+        System.out.println();
+        System.out.printf("%s, press 'Enter' to roll the dice: %n", currentPlayer);
+        String playerRoll = scanner.nextLine();
+
+        while (!playerRoll.isEmpty()) {
+            System.out.printf("%s, press 'Enter' to roll the dice: %n", currentPlayer);
+            playerRoll = scanner.nextLine();
+        }
+
+        firstDiceResult = firstDice.nextInt(1, 7);
+        secondDiceResult = secondDice.nextInt(1, 7);
+        System.out.println("First dice: " + firstDiceResult);
+        System.out.println("Second dice: " + secondDiceResult);
+
+        return firstDiceResult + secondDiceResult;
+    }
+
+    public static void main(String[] args) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+
+        String TEXT_RED = "\u001B[31m";
+        String TEXT_CYAN = "\u001B[36m";
+        String TEXT_YELLOW = "\u001B[33m";
+        String TEXT_RESET = "\u001B[0m";
+
+        printStartOfTheGame();
+
+        int numberOfPlayers = enterNumberOfPlayers(scanner);
+
+        String[] players = new String[numberOfPlayers];
+
+        fillPlayerNames(players, scanner);
+
+        printStart();
 
         Map<String, Integer> playersBudget = new HashMap<>();
+        Map<String, List<String>> playersPurchases = new HashMap<>();
+        Map<String, List<String>> playersSpecialCards = new HashMap<>();
+        Map<String, Integer> playersFieldNumber = new HashMap<>();
+        Map<String, Boolean> playersInJail = new HashMap<>();
 
-        List<String> firstPlayerRepository = new ArrayList<>();
-        List<String> secondPlayerRepository = new ArrayList<>();
-        List<String> thirdPlayerRepository = new ArrayList<>();
-        List<String> fourthPlayerRepository = new ArrayList<>();
-
-        List<String> firstPlayerSpecialCards = new ArrayList<>();
-        List<String> secondPlayerSpecialCards = new ArrayList<>();
-        List<String> thirdPlayerSpecialCards = new ArrayList<>();
-        List<String> fourthPlayerSpecialCards = new ArrayList<>();
+        for (int i = 0; i < players.length; i++) {
+            playersBudget.put(players[i], 1500);
+            playersPurchases.put(players[i], new ArrayList<>());
+            playersSpecialCards.put(players[i], new ArrayList<>());
+            playersFieldNumber.put(players[i], 0);
+            playersInJail.put(players[i], false);
+        }
 
         //попълване на игралната дъска от файла BoardFields.txt
         String[] board = arrayFromFile("dataBase/BoardFields.txt", 40);
@@ -206,189 +221,149 @@ public class Monopoly {
         //попълване на картите Chance от файла в масив
         String[] chance = arrayFromFile("dataBase/Chance.txt", 16);
 
-        int counter = 1;
+        for (int i = 0; i < players.length; i++) {
+            String currentPlayer = players[i];
+            int moveNumber = 0;
 
-        //всички играчи започват играта на нулево поле, т.е. START
-        int firstPlayerFieldNumber = 0;
-        int secondPlayerFieldNumber = 0;
-        int thirdPlayerFieldNumber = 0;
-        int fourthPlayerFieldNumber = 0;
-
-        boolean firstPlayerInJail = true;
-        boolean secondPlayerInJail = false;
-        boolean thirdPlayerInJail = false;
-        boolean fourthPlayerInJail = false;
-
-        Random firstDice = new Random();
-        Random secondDice = new Random();
-
-        int firstDiceResult = 0;
-        int secondDiceResult = 0;
-
-        switch (numberOfPlayers) {
-            case 1:
-                //първоначално играча получава $1500
-                playersBudget.put(firstPlayerName, 1500);
-                int jailCounter = 0;
-
-                while (numberOfPlayers != 0) {
-
-                    //in JAIL
-                    if (firstPlayerInJail) {
-                        if (firstPlayerSpecialCards.contains("Get Out of Jail Free")) {
-                            firstPlayerInJail = false;
-                            continue;
-                        } else {
-                            jailCounter++;
-                        }
-
-                        if (jailCounter == 3) {
-                            firstPlayerInJail = false;
-                            jailCounter = 0;
-                        }
+            if (playersInJail.get(currentPlayer)) {
+                if (playersSpecialCards.get(currentPlayer).contains("Get Out of Jail Free")) {
+                    playersInJail.put(currentPlayer, false);
+                } else {
+                    System.out.printf("%s, you must roll a 12", currentPlayer);
+                    moveNumber = rollTheDice(currentPlayer, scanner);
+                    if (moveNumber == 12) {
+                        playersInJail.put(currentPlayer, false);
+                    } else {
                         continue;
                     }
-
-
-
-                    printPlayerStats(firstPlayerName, playersBudget.get(firstPlayerName), firstPlayerRepository, firstPlayerSpecialCards);
-                    System.out.println();
-                    System.out.printf("%s, press 'Enter' to roll the dice: %n", firstPlayerName);
-                    String firstPlayerRoll = scanner.nextLine();
-
-                    while (!firstPlayerRoll.isEmpty()) {
-                        System.out.printf("%s, press 'Enter' to roll the dice: %n", firstPlayerName);
-                        firstPlayerRoll = scanner.nextLine();
-                    }
-
-                    firstDiceResult = firstDice.nextInt(1, 7);
-                    secondDiceResult = secondDice.nextInt(1, 7);
-                    System.out.println("First dice: " + firstDiceResult);
-                    System.out.println("Second dice: " + secondDiceResult);
-
-                    int moveNumber = firstDiceResult + secondDiceResult;
-
-                    firstPlayerFieldNumber += moveNumber;
-
-                    if (firstPlayerFieldNumber >= 40) {
-                        firstPlayerFieldNumber -= 40;
-                        playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) + 200);
-                    }
-
-                    String[] currentField = board[firstPlayerFieldNumber].split(", ");
-
-                    String fieldCard = "";
-
-                    switch (firstPlayerFieldNumber) {
-                        case 0, 2, 4, 7, 10, 17, 20, 22, 30, 33, 36, 38:
-                            fieldCard = otherFieldCard(currentField);
-                            System.out.println(fieldCard);
-                            System.out.println("----------");
-                            switch (fieldCard) {
-                                case "START":
-                                    playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) + 200);
-                                    System.out.println("You become $200");
-                                    break;
-                                case "Community Chest":
-                                    break;
-                                case "Income Tax":
-                                    playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - 200);
-                                    System.out.println("Income Tax - $200");
-                                    break;
-                                case "Chance":
-                                    break;
-                                case "Jail - only visit":
-                                    break;
-                                case "Free Parking":
-                                    break;
-                                case "Go To Jail":
-                                    firstPlayerFieldNumber = 10;
-                                    firstPlayerInJail = true;
-                                    break;
-                                case "Luxury tax":
-                                    playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - 100);
-                                    System.out.println("Income Tax - $100");
-                                    break;
-                            }
-                            break;
-                        case 1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39:
-                            fieldCard = colorFieldCard(currentField);
-                            System.out.println(TEXT_CYAN + fieldCard + TEXT_RESET);
-
-                            if (currentField[1].equals("for rent")) {
-                                System.out.println("Do you want to buy " + currentField[0] + "?");
-                                System.out.println("Enter 'yes' or 'no': ");
-                                String answer = scanner.nextLine();
-                                while (!answer.equals("yes") && !answer.equals("no")) {
-                                    System.out.println("Enter 'yes' or 'no': ");
-                                    answer = scanner.nextLine();
-                                }
-                                if (answer.equals("yes")) {
-                                    if (moneyValidation(playersBudget.get(firstPlayerName), Integer.parseInt(currentField[2]))) {
-                                        currentField[1] = "Sold";
-                                        currentField[12] = firstPlayerName;
-                                        firstPlayerRepository.add(currentField[0]);
-                                        playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - Integer.parseInt(currentField[2]));
-                                        printPlayerStats(firstPlayerName, playersBudget.get(firstPlayerName), firstPlayerRepository, firstPlayerSpecialCards);
-                                        System.out.println(TEXT_CYAN + colorFieldCard(currentField) + TEXT_RESET);
-                                    } else {
-                                        System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(firstPlayerName) +
-                                                " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
-                                    }
-                                }
-                            } else {
-                                String fieldOwner = currentField[12];
-                                playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + Integer.parseInt(currentField[3]));
-                                playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - Integer.parseInt(currentField[3]));
-                            }
-                            break;
-
-                        case 5, 12, 15, 25, 28, 35:
-                            fieldCard = companyFieldCard(currentField);
-                            System.out.println(TEXT_YELLOW + fieldCard + TEXT_RESET);
-
-                            if (currentField[1].equals("for rent")) {
-                                System.out.println("Do you want to buy " + currentField[0] + "?");
-                                System.out.println("Enter 'yes' or 'no': ");
-                                String answer = scanner.nextLine();
-                                while (!answer.equals("yes") && !answer.equals("no")) {
-                                    answer = scanner.nextLine();
-                                }
-
-                                if (answer.equals("yes")) {
-                                    if (moneyValidation(playersBudget.get(firstPlayerName), Integer.parseInt(currentField[2]))) {
-                                    currentField[1] = "Sold";
-                                    currentField[3] = firstPlayerName;
-                                    firstPlayerRepository.add(currentField[0]);
-                                    playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - Integer.parseInt(currentField[2]));
-                                    printPlayerStats(firstPlayerName, playersBudget.get(firstPlayerName), firstPlayerRepository, firstPlayerSpecialCards);
-                                    System.out.println(TEXT_YELLOW + companyFieldCard(currentField) + TEXT_RESET);
-                                    } else {
-                                        System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(firstPlayerName) +
-                                                " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
-                                    }
-                                }
-                            } else {
-                                String fieldOwner = currentField[3];
-                                playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + 50);
-                                playersBudget.put(firstPlayerName, playersBudget.get(firstPlayerName) - 50);
-                            }
-
-                            break;
-                    }
-                    if (playersBudget.get(firstPlayerName) <= 0) {
-                        numberOfPlayers--;
-                    }
                 }
-                break;
-            case 2:
-                break;
-            case 3:
-                break;
-            case 4:
-                break;
+            }
+
+            printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer));
+
+            moveNumber = rollTheDice(currentPlayer, scanner);
+
+            playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) + moveNumber);
+
+            if (playersFieldNumber.get(currentPlayer) >= 40) {
+                playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 40);
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+            }
+
+            String[] currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
+
+            String fieldCard = "";
+
+            switch (playersFieldNumber.get(currentPlayer)) {
+                case 0, 2, 4, 7, 10, 17, 20, 22, 30, 33, 36, 38:
+                    fieldCard = otherFieldCard(currentField);
+                    System.out.println(fieldCard);
+                    System.out.println("----------");
+                    switch (fieldCard) {
+                        case "START":
+                            System.out.println("You become $200");
+                            break;
+                        case "Community Chest":
+                            //TODO: ArrayDeque
+                            break;
+                        case "Income Tax":
+                            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 200);
+                            System.out.println("Income Tax - $200");
+                            break;
+                        case "Chance":
+                            //TODO: ArrayDeque
+                            break;
+                        case "Jail - only visit":
+                            break;
+                        case "Free Parking":
+                            break;
+                        case "Go To Jail":
+                            playersFieldNumber.put(currentPlayer, 10);
+                            playersInJail.put(currentPlayer, true);
+                            break;
+                        case "Luxury tax":
+                            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 100);
+                            System.out.println("Income Tax - $100");
+                            break;
+                    }
+                    break;
+                case 1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39:
+                    fieldCard = colorFieldCard(currentField);
+                    System.out.println(TEXT_CYAN + fieldCard + TEXT_RESET);
+
+                    if (currentField[1].equals("for rent")) {
+                        System.out.println("Do you want to buy " + currentField[0] + "?");
+                        System.out.println("Enter 'yes' or 'no': ");
+                        String answer = scanner.nextLine();
+
+                        while (!answer.equals("yes") && !answer.equals("no")) {
+                            System.out.println("Enter 'yes' or 'no': ");
+                            answer = scanner.nextLine();
+                        }
+
+                        if (answer.equals("yes")) {
+                            if (moneyValidation(playersBudget.get(currentPlayer), Integer.parseInt(currentField[2]))) {
+                                currentField[1] = "Sold";
+                                currentField[12] = currentPlayer;
+                                playersPurchases.get(currentPlayer).add(currentField[0]);
+                                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - Integer.parseInt(currentField[2]));
+                                printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer));
+                                System.out.println(TEXT_CYAN + colorFieldCard(currentField) + TEXT_RESET);
+                                board[playersFieldNumber.get(currentPlayer)] = String.join(", ", currentField);
+                            } else {
+                                System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(currentPlayer) +
+                                        " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
+                            }
+                        }
+                    } else {
+                        String fieldOwner = currentField[currentField.length - 1];
+                        int annuity = Integer.parseInt(currentField[3]);
+                        playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + annuity);
+                        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - annuity);
+                        System.out.printf("%s pays %s an annuity of $%d%n", currentPlayer, fieldOwner, annuity);
+                    }
+                    break;
+
+                case 5, 12, 15, 25, 28, 35:
+                    fieldCard = companyFieldCard(currentField);
+                    System.out.println(TEXT_YELLOW + fieldCard + TEXT_RESET);
+
+                    if (currentField[1].equals("for rent")) {
+                        System.out.println("Do you want to buy " + currentField[0] + "?");
+                        System.out.println("Enter 'yes' or 'no': ");
+                        String answer = scanner.nextLine();
+                        while (!answer.equals("yes") && !answer.equals("no")) {
+                            answer = scanner.nextLine();
+                        }
+
+                        if (answer.equals("yes")) {
+                            if (moneyValidation(playersBudget.get(currentPlayer), Integer.parseInt(currentField[2]))) {
+                                currentField[1] = "Sold";
+                                currentField[3] = currentPlayer;
+                                playersPurchases.get(currentPlayer).add(currentField[0]);
+                                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - Integer.parseInt(currentField[2]));
+                                printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer));
+                                System.out.println(TEXT_YELLOW + companyFieldCard(currentField) + TEXT_RESET);
+                                board[playersFieldNumber.get(currentPlayer)] = String.join(", ", currentField);
+                            } else {
+                                System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(currentPlayer) +
+                                        " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
+                            }
+                        }
+                    } else {
+                        String fieldOwner = currentField[3];
+                        playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + 50);
+                        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 50);
+                        System.out.printf("%s pays %s an annuity of $%d%n", currentPlayer, fieldOwner, 50);
+                    }
+
+                    break;
+            }
+            if (i == players.length - 1) {
+                i = -1;
+            } else {
+                System.out.println("Next player!");
+            }
         }
-
-
     }
 }
