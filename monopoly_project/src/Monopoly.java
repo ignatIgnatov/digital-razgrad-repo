@@ -252,7 +252,7 @@ public class Monopoly {
     }
 
     public static void goTroughTheStart(String currentPlayer, Scanner scanner) {
-        System.out.println(currentPlayer + ", you go through the Start field. You get $200.");
+        System.out.println(currentPlayer + ", you passed the Start field. You get $200.");
         System.out.println("Press 'Enter' to continue.");
         String playerRoll = scanner.nextLine();
 
@@ -326,6 +326,11 @@ public class Monopoly {
                     if (moveNumber == 12) {
                         playersInJail.put(currentPlayer, false);
                     } else {
+                        if (i == players.length - 1) {
+                            i = -1;
+                        } else {
+                            System.out.println("Next player!");
+                        }
                         continue;
                     }
                 }
@@ -354,7 +359,7 @@ public class Monopoly {
                     fieldCard = otherFieldCard(currentField);
                     System.out.println(fieldCard);
                     System.out.println("----------");
-                    switch (fieldCard) {
+                    switch (currentField[0]) {
                         case "START":
                             System.out.println("You become $200");
                             break;
@@ -365,7 +370,7 @@ public class Monopoly {
                             switch (communityChestRow) {
                                 case "Advance to START(Collect $200)":
                                     playersFieldNumber.put(currentPlayer, 0);
-                                    //TODO: трябва да проверя дали ще добави към сметката $200
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
                                     break;
                                 case "Bank error in your favor. Collect $200":
                                     playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
@@ -431,7 +436,7 @@ public class Monopoly {
                             break;
                         case "Income Tax":
                             playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 200);
-                            System.out.println("Income Tax - $200");
+                            System.out.println(currentPlayer + ", you paid Income Tax - $200");
                             break;
                         case "Chance":
                             String chanceRow = chanceCards.poll();
@@ -444,7 +449,7 @@ public class Monopoly {
                                     break;
                                 case "Advance to START (Collect $200)":
                                     playersFieldNumber.put(currentPlayer, 0);
-                                    //TODO: трябва да тествам дали получава $200
+                                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
                                     break;
                                 case "Advance to Illinois Avenue. If you pass START, collect $200":
                                     int currentPosition = playersFieldNumber.get(currentPlayer);
@@ -459,10 +464,10 @@ public class Monopoly {
                                     currentPosition = playersFieldNumber.get(currentPlayer);
                                     if (currentPosition == 36 || currentPosition == 22) {
                                         playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
-                                        System.out.println("Collect $200");
+                                        System.out.println(currentPlayer + ", you passed the Start and collect $200");
                                     }
                                     playersFieldNumber.put(currentPlayer, 11);
-                                    System.out.println(currentPosition + ", you're going to St. Charles Place");
+                                    System.out.println(currentPlayer + ", you're going to St. Charles Place");
                                     break;
                                 case "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled":
                                     currentPosition = playersFieldNumber.get(currentPlayer);
@@ -543,16 +548,21 @@ public class Monopoly {
                             break;
 
                         case "Jail - only visit":
+                            System.out.println(currentPlayer + ", you just visited the Jail");
+                            System.out.println("Next player!");
                             break;
                         case "Free Parking":
+                            System.out.println(currentPlayer + ", do nothing");
+                            System.out.println("Next player!");
                             break;
                         case "Go To Jail":
                             playersFieldNumber.put(currentPlayer, 10);
                             playersInJail.put(currentPlayer, true);
+                            System.out.println(currentPlayer + ", you are in Jail");
                             break;
                         case "Luxury tax":
                             playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 100);
-                            System.out.println("Income Tax - $100");
+                            System.out.println(currentPlayer + ", you paid Luxury Tax - $100");
                             break;
                     }
                     break;
