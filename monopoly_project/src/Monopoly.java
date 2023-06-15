@@ -573,7 +573,7 @@ public class Monopoly {
         Map<String, Boolean> playersInJail = new HashMap<>();
 
         for (int i = 0; i < players.length; i++) {
-            playersBudget.put(players[i], 200);
+            playersBudget.put(players[i], 1500);
             playersPurchases.put(players[i], new ArrayList<>());
             playersSpecialCards.put(players[i], new ArrayList<>());
             playersFieldNumber.put(players[i], 0);
@@ -626,10 +626,11 @@ public class Monopoly {
 
             moveNumber = rollTheDice(currentPlayer, scanner);
 
-            playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) + moveNumber);
+            int currentFieldNumber = playersFieldNumber.get(currentPlayer);
+            playersFieldNumber.put(currentPlayer, currentFieldNumber + moveNumber);
 
             if (playersFieldNumber.get(currentPlayer) >= 40) {
-                playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 40);
+                playersFieldNumber.put(currentPlayer, currentFieldNumber - 40);
                 playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
                 goTroughTheStart(currentPlayer, scanner);
             }
