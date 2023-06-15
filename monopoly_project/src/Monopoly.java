@@ -5,6 +5,14 @@ import java.util.*;
 
 public class Monopoly {
 
+    public static ArrayDeque<String> convertArrayToDeque(String[] communityChest) {
+        ArrayDeque<String> result = new ArrayDeque<>();
+        for (int j = 0; j < communityChest.length; j++) {
+            result.offer(communityChest[j]);
+        }
+        return result;
+    }
+
     public static void buyCompanyField(String[] currentField, Scanner scanner, String currentPlayer,
                                        Map<String, Integer> playersBudget, List<String> playersPurchases,
                                        List<String> playersSpecialCards, Map<String, Integer> playersFieldNumber,
@@ -87,11 +95,15 @@ public class Monopoly {
     public static void switchChance(String chanceRow, Map<String, Integer> playersFieldNumber,
                                     String currentPlayer, Map<String, Integer> playersBudget,
                                     List<String> playersSpecialCards, Map<String, Boolean> playersInJail,
-                                    String[] players) {
+                                    String[] players, List<String> playersPurchases, String[] board, Scanner scanner, String[] currentField) {
         switch (chanceRow) {
             case "Advance to Boardwalk":
                 playersFieldNumber.put(currentPlayer, 38);
-                System.out.println(currentPlayer + ", you go to Boardwalk. Do nothing!");
+
+                System.out.println(currentPlayer + ", you go to Boardwalk.");
+
+                buyColorField(currentField, scanner, currentPlayer, playersBudget,
+                        playersPurchases, playersSpecialCards, playersFieldNumber, board);
                 break;
             case "Advance to START (Collect $200)":
                 playersFieldNumber.put(currentPlayer, 0);
@@ -99,37 +111,46 @@ public class Monopoly {
                 break;
             case "Advance to Illinois Avenue. If you pass START, collect $200":
                 int currentPosition = playersFieldNumber.get(currentPlayer);
+
                 if (currentPosition == 36) {
                     playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
                     System.out.println("Collect $200");
                 }
                 playersFieldNumber.put(currentPlayer, 24);
                 System.out.println(currentPosition + ", you're going to Illinois Avenue");
+
+                buyColorField(currentField, scanner, currentPlayer, playersBudget,
+                        playersPurchases, playersSpecialCards, playersFieldNumber, board);
                 break;
             case "Advance to St. Charles Place. If you pass START, collect $200":
                 currentPosition = playersFieldNumber.get(currentPlayer);
+
                 if (currentPosition == 36 || currentPosition == 22) {
                     playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
                     System.out.println(currentPlayer + ", you passed the Start and collect $200");
                 }
                 playersFieldNumber.put(currentPlayer, 11);
                 System.out.println(currentPlayer + ", you're going to St. Charles Place");
+
+                buyColorField(currentField, scanner, currentPlayer, playersBudget,
+                        playersPurchases, playersSpecialCards, playersFieldNumber, board);
                 break;
             case "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled":
                 currentPosition = playersFieldNumber.get(currentPlayer);
                 if (currentPosition == 7) {
                     playersFieldNumber.put(currentPlayer, 25);
                     System.out.println(currentPlayer + ", you went to the nearest Railroad - B. & O. Railroad");
-                    //TODO
                 } else if (currentPosition == 22) {
                     playersFieldNumber.put(currentPlayer, 25);
                     System.out.println(currentPlayer + ", you went to the nearest Railroad - B. & O. Railroad");
-                    //TODO
                 } else {
                     playersFieldNumber.put(currentPlayer, 5);
                     System.out.println(currentPlayer + ", you went to the nearest Railroad - Reading RailRoad");
                     System.out.println("You passed a Start but you don't get $200");
+                    System.out.println("-----------");
                 }
+                buyCompanyField(currentField, scanner, currentPlayer, playersBudget, playersPurchases,
+                        playersSpecialCards, playersFieldNumber, board);
                 break;
             case "Advance token to nearest Utility. If unowned, you may buy it from the Bank.":
                 currentPosition = playersFieldNumber.get(currentPlayer);
@@ -137,12 +158,13 @@ public class Monopoly {
                 if (currentPosition == 22) {
                     playersFieldNumber.put(currentPlayer, 28);
                     System.out.println(currentPlayer + ", you went to Water works");
-                    //TODO
                 } else {
                     playersFieldNumber.put(currentPlayer, 12);
                     System.out.println(currentPlayer + ", you went to Electric Company");
-                    //TODO
                 }
+
+                buyCompanyField(currentField, scanner, currentPlayer, playersBudget, playersPurchases,
+                        playersSpecialCards, playersFieldNumber, board);
                 break;
             case "Bank pays you dividend of $50":
                 playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 50);
@@ -169,10 +191,15 @@ public class Monopoly {
                 System.out.println(currentPlayer + ", you paid $15");
                 break;
             case "Take a trip to Reading Railroad. If you pass START, collect $200":
+
                 playersFieldNumber.put(currentPlayer, 5);
                 playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+
                 System.out.println(currentPlayer + ", you move to Reading Railroad");
                 System.out.println("You passed a Start and get $200");
+
+                buyCompanyField(currentField, scanner, currentPlayer, playersBudget, playersPurchases,
+                        playersSpecialCards, playersFieldNumber, board);
                 break;
             case "You have been elected Chairman of the Board. Pay each player $50":
                 int sum = 0;
@@ -521,14 +548,6 @@ public class Monopoly {
         }
     }
 
-    public static ArrayDeque<String> convertArrayToDeque(String[] communityChest) {
-        ArrayDeque<String> result = new ArrayDeque<>();
-        for (int j = 0; j < communityChest.length; j++) {
-            result.offer(communityChest[j]);
-        }
-        return result;
-    }
-
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
@@ -640,8 +659,10 @@ public class Monopoly {
                             String chanceRow = chanceCards.poll();
                             System.out.println(chanceRow);
 
-                            switchChance(chanceRow, playersFieldNumber, currentPlayer, playersBudget,
-                                    playersSpecialCards.get(currentPlayer), playersInJail, players);
+                            switchChance(chanceRow, playersFieldNumber,
+                                    currentPlayer, playersBudget,
+                                    playersSpecialCards.get(currentPlayer), playersInJail,
+                                    players, playersPurchases.get(currentPlayer), board, scanner, currentField);
 
                             chanceCards.offer(chanceRow);
                             break;
