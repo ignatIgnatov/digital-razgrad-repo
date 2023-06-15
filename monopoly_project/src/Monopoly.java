@@ -591,6 +591,8 @@ public class Monopoly {
         String[] chance = arrayFromFile("dataBase/Chance.txt", 16);
         ArrayDeque<String> chanceCards = convertArrayToDeque(chance);
 
+        int jailCounter = 0;
+
         for (int i = 0; i < players.length; i++) {
             String currentPlayer = players[i];
             int moveNumber = 0;
@@ -598,12 +600,18 @@ public class Monopoly {
             if (playersInJail.get(currentPlayer)) {
                 if (playersSpecialCards.get(currentPlayer).contains("Get Out of Jail Free")) {
                     playersInJail.put(currentPlayer, false);
+                    playersSpecialCards.get(currentPlayer).remove(0);
                 } else {
                     System.out.printf("%s, you must roll a 12", currentPlayer);
                     moveNumber = rollTheDice(currentPlayer, scanner);
                     if (moveNumber == 12) {
                         playersInJail.put(currentPlayer, false);
                     } else {
+                        jailCounter++;
+                        if (jailCounter == 3) {
+                            playersInJail.put(currentPlayer, false);
+                            jailCounter = 0;
+                        }
                         if (i == players.length - 1) {
                             i = -1;
                         } else {
