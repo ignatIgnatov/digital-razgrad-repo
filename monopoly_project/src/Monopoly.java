@@ -599,11 +599,6 @@ public class Monopoly {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
-        String TEXT_RED = "\u001B[31m";
-        String TEXT_CYAN = "\u001B[36m";
-        String TEXT_YELLOW = "\u001B[33m";
-        String TEXT_RESET = "\u001B[0m";
-
         printLogoOfTheGame();
 
         int numberOfPlayers = enterNumberOfPlayers(scanner);
@@ -614,10 +609,14 @@ public class Monopoly {
 
         printStart();
 
+        Map<String, Integer> playersFieldNumber = new HashMap<>();
         Map<String, Integer> playersBudget = new HashMap<>();
         Map<String, List<String>> playersPurchases = new HashMap<>();
+
+        Map<String, Map<String, Integer>> playersHouses = new HashMap<>();
+        Map<String, Map<String, Integer>> playersHotels = new HashMap<>();
+
         Map<String, List<String>> playersSpecialCards = new HashMap<>();
-        Map<String, Integer> playersFieldNumber = new HashMap<>();
         Map<String, Boolean> playersInJail = new HashMap<>();
 
         for (int i = 0; i < players.length; i++) {
@@ -731,21 +730,29 @@ public class Monopoly {
                             break;
 
                         case "Jail - only visit":
+
                             System.out.println(currentPlayer + ", you just visited the Jail");
                             System.out.println("Next player!");
+
                             break;
                         case "Free Parking":
+
                             System.out.println(currentPlayer + ", do nothing");
                             System.out.println("Next player!");
+
                             break;
                         case "Go To Jail":
+
                             playersFieldNumber.put(currentPlayer, 10);
                             playersInJail.put(currentPlayer, true);
                             System.out.println(currentPlayer + ", you are in Jail");
+
                             break;
                         case "Luxury tax":
+
                             playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 100);
                             System.out.println(currentPlayer + ", you paid Luxury Tax - $100");
+
                             break;
                     }
                     break;
