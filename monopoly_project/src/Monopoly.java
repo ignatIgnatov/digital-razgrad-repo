@@ -409,6 +409,70 @@ public class Monopoly {
                 break;
         }
     }
+    private static void switchOtherFields(Scanner scanner, String[] players, Map<String, Integer> playersFieldNumber, Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, Map<String[], Integer>> playersHouses, Map<String, Map<String[], Integer>> playersHotels, Map<String[], Integer> houses, Map<String[], Integer> hotels, Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, String[] board, ArrayDeque<String> communityChestCards, ArrayDeque<String> chanceCards, String currentPlayer, String[] currentField, String fieldCard) {
+        switch (currentField[0]) {
+            case "START":
+
+                System.out.println("You become $200");
+
+                break;
+            case "Community Chest":
+
+                String communityChestRow = communityChestCards.poll();
+                System.out.println(communityChestRow);
+
+                switchCommunityChest(communityChestRow, currentPlayer, playersBudget, playersFieldNumber,
+                        playersSpecialCards.get(currentPlayer), playersInJail, players);
+
+                communityChestCards.offer(communityChestRow);
+
+                break;
+            case "Income Tax":
+
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 200);
+                System.out.println(currentPlayer + ", you paid Income Tax - $200");
+
+                break;
+            case "Chance":
+
+                String chanceRow = chanceCards.poll();
+                System.out.println(chanceRow);
+
+                switchChance(chanceRow, playersFieldNumber,
+                        currentPlayer, playersBudget,
+                        playersSpecialCards.get(currentPlayer), playersInJail,
+                        players, playersPurchases.get(currentPlayer), board, scanner, currentField, fieldCard, houses, hotels, playersHouses, playersHotels);
+
+                chanceCards.offer(chanceRow);
+                break;
+
+            case "Jail - only visit":
+
+                System.out.println(currentPlayer + ", you just visited the Jail");
+                System.out.println("Next player!");
+
+                break;
+            case "Free Parking":
+
+                System.out.println(currentPlayer + ", do nothing");
+                System.out.println("Next player!");
+
+                break;
+            case "Go To Jail":
+
+                playersFieldNumber.put(currentPlayer, 10);
+                playersInJail.put(currentPlayer, true);
+                System.out.println(currentPlayer + ", you are in Jail");
+
+                break;
+            case "Luxury tax":
+
+                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 100);
+                System.out.println(currentPlayer + ", you paid Luxury Tax - $100");
+
+                break;
+        }
+    }
 
     public static String[] arrayFromFile(String filePath, int numbersOfRows) throws IOException {
 
@@ -768,68 +832,11 @@ public class Monopoly {
                     fieldCard = otherFieldCard(currentField);
                     System.out.println(fieldCard);
 
-                    switch (currentField[0]) {
-                        case "START":
+                    switchOtherFields(scanner, players, playersFieldNumber, playersBudget, playersPurchases,
+                            playersHouses, playersHotels, houses, hotels, playersSpecialCards,
+                            playersInJail, board, communityChestCards, chanceCards, currentPlayer,
+                            currentField, fieldCard);
 
-                            System.out.println("You become $200");
-
-                            break;
-                        case "Community Chest":
-
-                            String communityChestRow = communityChestCards.poll();
-                            System.out.println(communityChestRow);
-
-                            switchCommunityChest(communityChestRow, currentPlayer, playersBudget, playersFieldNumber,
-                                    playersSpecialCards.get(currentPlayer), playersInJail, players);
-
-                            communityChestCards.offer(communityChestRow);
-
-                            break;
-                        case "Income Tax":
-
-                            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 200);
-                            System.out.println(currentPlayer + ", you paid Income Tax - $200");
-
-                            break;
-                        case "Chance":
-
-                            String chanceRow = chanceCards.poll();
-                            System.out.println(chanceRow);
-
-                            switchChance(chanceRow, playersFieldNumber,
-                                    currentPlayer, playersBudget,
-                                    playersSpecialCards.get(currentPlayer), playersInJail,
-                                    players, playersPurchases.get(currentPlayer), board, scanner, currentField, fieldCard, houses, hotels, playersHouses, playersHotels);
-
-                            chanceCards.offer(chanceRow);
-                            break;
-
-                        case "Jail - only visit":
-
-                            System.out.println(currentPlayer + ", you just visited the Jail");
-                            System.out.println("Next player!");
-
-                            break;
-                        case "Free Parking":
-
-                            System.out.println(currentPlayer + ", do nothing");
-                            System.out.println("Next player!");
-
-                            break;
-                        case "Go To Jail":
-
-                            playersFieldNumber.put(currentPlayer, 10);
-                            playersInJail.put(currentPlayer, true);
-                            System.out.println(currentPlayer + ", you are in Jail");
-
-                            break;
-                        case "Luxury tax":
-
-                            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 100);
-                            System.out.println(currentPlayer + ", you paid Luxury Tax - $100");
-
-                            break;
-                    }
                     break;
                 case 1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39:
 
