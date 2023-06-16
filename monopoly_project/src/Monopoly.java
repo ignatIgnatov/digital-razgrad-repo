@@ -16,11 +16,14 @@ public class Monopoly {
     public static void buyCompanyField(String[] currentField, Scanner scanner, String currentPlayer,
                                        Map<String, Integer> playersBudget, List<String> playersPurchases,
                                        List<String> playersSpecialCards, Map<String, Integer> playersFieldNumber,
-                                       String[] board) {
+                                       String[] board, String fieldCard) {
 
         String TEXT_RED = "\u001B[31m";
         String TEXT_YELLOW = "\u001B[33m";
         String TEXT_RESET = "\u001B[0m";
+
+        fieldCard = companyFieldCard(currentField);
+        System.out.println(TEXT_YELLOW + fieldCard + TEXT_RESET);
 
         if (currentField[1].equals("for rent") && !currentPlayer.equals(currentField[currentField.length - 1])) {
 
@@ -57,11 +60,14 @@ public class Monopoly {
     public static void buyColorField(String[] currentField, Scanner scanner, String currentPlayer,
                                      Map<String, Integer> playersBudget, List<String> playersPurchases,
                                      List<String> playersSpecialCards, Map<String, Integer> playersFieldNumber,
-                                     String[] board) {
+                                     String[] board, String fieldCard) {
 
         String TEXT_RED = "\u001B[31m";
         String TEXT_CYAN = "\u001B[36m";
         String TEXT_RESET = "\u001B[0m";
+
+        fieldCard = colorFieldCard(currentField);
+        System.out.println(TEXT_CYAN + fieldCard + TEXT_RESET);
 
         if (currentField[1].equals("for rent") && !currentPlayer.equals(currentField[currentField.length - 1])) {
 
@@ -95,48 +101,66 @@ public class Monopoly {
     public static void switchChance(String chanceRow, Map<String, Integer> playersFieldNumber,
                                     String currentPlayer, Map<String, Integer> playersBudget,
                                     List<String> playersSpecialCards, Map<String, Boolean> playersInJail,
-                                    String[] players, List<String> playersPurchases, String[] board, Scanner scanner, String[] currentField) {
+                                    String[] players, List<String> playersPurchases, String[] board, Scanner scanner, String[] currentField, String fieldCard) {
         switch (chanceRow) {
             case "Advance to Boardwalk":
-                playersFieldNumber.put(currentPlayer, 38);
 
-                System.out.println(currentPlayer + ", you go to Boardwalk.");
+                playersFieldNumber.put(currentPlayer, 39);
+
+                currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
+
+                System.out.println(currentPlayer + ", you went to Boardwalk.");
 
                 buyColorField(currentField, scanner, currentPlayer, playersBudget,
-                        playersPurchases, playersSpecialCards, playersFieldNumber, board);
+                        playersPurchases, playersSpecialCards, playersFieldNumber, board, fieldCard);
                 break;
             case "Advance to START (Collect $200)":
+
                 playersFieldNumber.put(currentPlayer, 0);
                 playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+
                 break;
             case "Advance to Illinois Avenue. If you pass START, collect $200":
+
                 int currentPosition = playersFieldNumber.get(currentPlayer);
 
                 if (currentPosition == 36) {
                     playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
                     System.out.println("Collect $200");
                 }
+
                 playersFieldNumber.put(currentPlayer, 24);
                 System.out.println(currentPosition + ", you're going to Illinois Avenue");
 
+                currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
+
                 buyColorField(currentField, scanner, currentPlayer, playersBudget,
-                        playersPurchases, playersSpecialCards, playersFieldNumber, board);
+                        playersPurchases, playersSpecialCards, playersFieldNumber, board, fieldCard);
+
                 break;
             case "Advance to St. Charles Place. If you pass START, collect $200":
+
                 currentPosition = playersFieldNumber.get(currentPlayer);
 
                 if (currentPosition == 36 || currentPosition == 22) {
                     playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
                     System.out.println(currentPlayer + ", you passed the Start and collect $200");
                 }
+
                 playersFieldNumber.put(currentPlayer, 11);
                 System.out.println(currentPlayer + ", you're going to St. Charles Place");
 
+                currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
+
                 buyColorField(currentField, scanner, currentPlayer, playersBudget,
-                        playersPurchases, playersSpecialCards, playersFieldNumber, board);
+                        playersPurchases, playersSpecialCards, playersFieldNumber, board, fieldCard);
+
                 break;
-            case "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, pay wonder twice the rental to which they are otherwise entitled":
+            case "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, " +
+                    "pay wonder twice the rental to which they are otherwise entitled":
+
                 currentPosition = playersFieldNumber.get(currentPlayer);
+
                 if (currentPosition == 7) {
                     playersFieldNumber.put(currentPlayer, 25);
                     System.out.println(currentPlayer + ", you went to the nearest Railroad - B. & O. Railroad");
@@ -149,10 +173,15 @@ public class Monopoly {
                     System.out.println("You passed a Start but you don't get $200");
                     System.out.println("-----------");
                 }
+
+                currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
+
                 buyCompanyField(currentField, scanner, currentPlayer, playersBudget, playersPurchases,
-                        playersSpecialCards, playersFieldNumber, board);
+                        playersSpecialCards, playersFieldNumber, board, fieldCard);
+
                 break;
             case "Advance token to nearest Utility. If unowned, you may buy it from the Bank.":
+
                 currentPosition = playersFieldNumber.get(currentPlayer);
 
                 if (currentPosition == 22) {
@@ -163,32 +192,47 @@ public class Monopoly {
                     System.out.println(currentPlayer + ", you went to Electric Company");
                 }
 
+                currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
+
                 buyCompanyField(currentField, scanner, currentPlayer, playersBudget, playersPurchases,
-                        playersSpecialCards, playersFieldNumber, board);
+                        playersSpecialCards, playersFieldNumber, board, fieldCard);
+
                 break;
             case "Bank pays you dividend of $50":
+
                 playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 50);
                 System.out.println(currentPlayer + ", you received $50");
+
                 break;
             case "Get Out of Jail Free":
+
                 playersSpecialCards.add(chanceRow);
                 System.out.println(currentPlayer + ", you added the card 'Get Out of Jail Free' to your Special Card Collection");
+
                 break;
             case "Go Back 3 Spaces":
+
                 playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 3);
                 System.out.println(currentPlayer + ", you moved back three spaces");
+
                 break;
             case "Go to Jail. Go directly to Jail, do not pass START, do not collect $200":
+
                 playersFieldNumber.put(currentPlayer, 10);
                 playersInJail.put(currentPlayer, true);
                 System.out.println(currentPlayer + ", you are in Jail");
+
                 break;
             case "Make general repairs on all your property. For each house pay $25. For each hotel pay $100":
+
                 //TODO
+
                 break;
             case "Speeding fine $15":
+
                 playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 15);
                 System.out.println(currentPlayer + ", you paid $15");
+
                 break;
             case "Take a trip to Reading Railroad. If you pass START, collect $200":
 
@@ -198,10 +242,14 @@ public class Monopoly {
                 System.out.println(currentPlayer + ", you move to Reading Railroad");
                 System.out.println("You passed a Start and get $200");
 
+                currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
+
                 buyCompanyField(currentField, scanner, currentPlayer, playersBudget, playersPurchases,
-                        playersSpecialCards, playersFieldNumber, board);
+                        playersSpecialCards, playersFieldNumber, board, fieldCard);
+
                 break;
             case "You have been elected Chairman of the Board. Pay each player $50":
+
                 int sum = 0;
                 for (int j = 0; j < players.length; j++) {
                     String current = players[j];
@@ -332,7 +380,7 @@ public class Monopoly {
         sb.append("Hotel price: ").append("$").append(currentField[11]).append(System.lineSeparator());
         sb.append("----------").append(System.lineSeparator());
         sb.append("Owner: ").append(currentField[12]).append(System.lineSeparator());
-        sb.append("----------").append(System.lineSeparator());
+        sb.append("----------");
 
         return sb.toString();
     }
@@ -347,7 +395,7 @@ public class Monopoly {
         sb.append("Price: ").append("$").append(currentField[2]).append(System.lineSeparator());
         sb.append("----------").append(System.lineSeparator());
         sb.append("Owner: ").append(currentField[3]).append(System.lineSeparator());
-        sb.append("----------").append(System.lineSeparator());
+        sb.append("----------");
 
         return sb.toString();
     }
@@ -358,7 +406,7 @@ public class Monopoly {
 
         sb.append("----------").append(System.lineSeparator());
         sb.append(currentField[0]).append(System.lineSeparator());
-        sb.append("----------").append(System.lineSeparator());
+        sb.append("----------");
 
         return sb.toString();
     }
@@ -456,7 +504,7 @@ public class Monopoly {
         return currentName;
     }
 
-    public static void printStartOfTheGame() {
+    public static void printLogoOfTheGame() {
         String TEXT_RED = "\u001B[31m";
         String TEXT_RESET = "\u001B[0m";
 
@@ -556,7 +604,7 @@ public class Monopoly {
         String TEXT_YELLOW = "\u001B[33m";
         String TEXT_RESET = "\u001B[0m";
 
-        printStartOfTheGame();
+        printLogoOfTheGame();
 
         int numberOfPlayers = enterNumberOfPlayers(scanner);
 
@@ -626,11 +674,10 @@ public class Monopoly {
 
             moveNumber = rollTheDice(currentPlayer, scanner);
 
-            int currentFieldNumber = playersFieldNumber.get(currentPlayer);
-            playersFieldNumber.put(currentPlayer, currentFieldNumber + moveNumber);
+            playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) + moveNumber);
 
             if (playersFieldNumber.get(currentPlayer) >= 40) {
-                playersFieldNumber.put(currentPlayer, currentFieldNumber - 40);
+                playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 40);
                 playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
                 goTroughTheStart(currentPlayer, scanner);
             }
@@ -642,16 +689,19 @@ public class Monopoly {
             String fieldCard = "";
 
             switch (playersFieldNumber.get(currentPlayer)) {
+
                 case 0, 2, 4, 7, 10, 17, 20, 22, 30, 33, 36, 38:
                     fieldCard = otherFieldCard(currentField);
                     System.out.println(fieldCard);
-                    System.out.println("----------");
 
                     switch (currentField[0]) {
                         case "START":
+
                             System.out.println("You become $200");
+
                             break;
                         case "Community Chest":
+
                             String communityChestRow = communityChestCards.poll();
                             System.out.println(communityChestRow);
 
@@ -659,19 +709,23 @@ public class Monopoly {
                                     playersSpecialCards.get(currentPlayer), playersInJail, players);
 
                             communityChestCards.offer(communityChestRow);
+
                             break;
                         case "Income Tax":
+
                             playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 200);
                             System.out.println(currentPlayer + ", you paid Income Tax - $200");
+
                             break;
                         case "Chance":
+
                             String chanceRow = chanceCards.poll();
                             System.out.println(chanceRow);
 
                             switchChance(chanceRow, playersFieldNumber,
                                     currentPlayer, playersBudget,
                                     playersSpecialCards.get(currentPlayer), playersInJail,
-                                    players, playersPurchases.get(currentPlayer), board, scanner, currentField);
+                                    players, playersPurchases.get(currentPlayer), board, scanner, currentField, fieldCard);
 
                             chanceCards.offer(chanceRow);
                             break;
@@ -696,22 +750,18 @@ public class Monopoly {
                     }
                     break;
                 case 1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39:
-                    fieldCard = colorFieldCard(currentField);
-                    System.out.println(TEXT_CYAN + fieldCard + TEXT_RESET);
 
                     buyColorField(currentField, scanner, currentPlayer,
                             playersBudget, playersPurchases.get(currentPlayer),
                             playersSpecialCards.get(currentPlayer), playersFieldNumber,
-                            board);
+                            board, fieldCard);
                     break;
 
                 case 5, 12, 15, 25, 28, 35:
-                    fieldCard = companyFieldCard(currentField);
-                    System.out.println(TEXT_YELLOW + fieldCard + TEXT_RESET);
 
                     buyCompanyField(currentField, scanner, currentPlayer, playersBudget,
                             playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer),
-                            playersFieldNumber, board);
+                            playersFieldNumber, board, fieldCard);
 
                     break;
             }
