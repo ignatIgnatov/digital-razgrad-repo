@@ -5,22 +5,24 @@ import java.util.*;
 
 public class Monopoly {
 
-    private static void checkForWinner(Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, List<String>> playersSpecialCards, int numberOfPlayers, List<String> players, String currentPlayer) {
+    private static String checkForWinner(Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, List<String>> playersSpecialCards, int numberOfPlayers, List<String> players, String currentPlayer) {
         if (numberOfPlayers != players.size() && players.size() == 1) {
             String winner = players.get(0);
 
             printPlayerStats(winner, playersBudget.get(winner), playersPurchases.get(winner), playersSpecialCards.get(winner));
 
-            System.out.println("-----------");
-            System.out.println("*****" + winner + ", YOU WIN! *****");
+            System.out.println();
+            System.out.println("***** " + winner + ", YOU WIN! *****");
+            System.out.println();
+            return winner;
 
         } else if (numberOfPlayers == 1 && players.isEmpty()) {
 
             System.out.println("-----------");
             System.out.println("GAME OVER!");
             System.out.println(currentPlayer + ", you lost the game!");
-
         }
+        return "none";
     }
 
     private static void resetFields(Scanner scanner, Map<String, Integer> playersFieldNumber, Map<String, Integer> playersBudget, String currentPlayer) {
@@ -758,9 +760,6 @@ public class Monopoly {
         } else if (playersPurchases.size() > 0) {
 
             sellProperty(currentPlayer, playersBudget, properties, board, scanner);
-        } else {
-
-            players.remove(currentPlayer);
         }
     }
 
@@ -880,8 +879,8 @@ public class Monopoly {
         return numberOfPlayers;
     }
 
-    public static void fillPlayerNames(List<String> players, Scanner scanner) {
-        for (int i = 0; i < players.size(); i++) {
+    public static void fillPlayerNames(int numberOfPlayers, List<String> players, Scanner scanner) {
+        for (int i = 0; i < numberOfPlayers; i++) {
             System.out.printf("Enter Player %d name: ", i + 1);
             String currentName = scanner.nextLine();
             currentName = checkForEmptyName(currentName, scanner);
@@ -949,6 +948,10 @@ public class Monopoly {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
+        printLogoOfTheGame();
+
+        int numberOfPlayers = enterNumberOfPlayers(scanner);
+
         Map<String, Integer> playersFieldNumber = new HashMap<>();
         Map<String, Integer> playersBudget = new HashMap<>();
         Map<String, List<String>> playersPurchases = new HashMap<>();
@@ -962,13 +965,9 @@ public class Monopoly {
         Map<String, List<String>> playersSpecialCards = new HashMap<>();
         Map<String, Boolean> playersInJail = new HashMap<>();
 
-        printLogoOfTheGame();
-
-        int numberOfPlayers = enterNumberOfPlayers(scanner);
-
         List<String> players = new ArrayList<>();
 
-        fillPlayerNames(players, scanner);
+        fillPlayerNames(numberOfPlayers, players, scanner);
 
         //попълване на игралната дъска от файла BoardFields.txt
         String[] board = arrayFromFile("dataBase/BoardFields.txt", 40);
@@ -1039,12 +1038,19 @@ public class Monopoly {
                         && playersPurchases.get(currentPlayer).isEmpty()) {
 
                     players.remove(currentPlayer);
-                    System.out.println(currentPlayer + "the game over for you!");
+                    System.out.println(currentPlayer + ", you have nothing for sale!");
+                    System.out.println("The game over for you!");
                     pressEnterToContinue(scanner);
+                    break;
                 }
             }
 
-            checkForWinner(playersBudget, playersPurchases, playersSpecialCards, numberOfPlayers, players, currentPlayer);
+
+            String winner = checkForWinner(playersBudget, playersPurchases, playersSpecialCards, numberOfPlayers, players, currentPlayer);
+
+            if (!winner.equals("")) {
+                return;
+            }
 
             moveNumber = rollTheDice(currentPlayer, scanner);
 
