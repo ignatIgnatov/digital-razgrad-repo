@@ -439,7 +439,7 @@ public class Monopoly {
                 break;
             case "Make general repairs on all your property. For each house pay $25. For each hotel pay $100":
 
-                //TODO
+                repairHousesAndHotels(currentPlayer, playersBudget, playersHouses, playersHotels, 25, 100);
 
                 break;
             case "Speeding fine $15":
@@ -480,13 +480,30 @@ public class Monopoly {
         }
     }
 
+    private static void repairHousesAndHotels(String currentPlayer, Map<String, Integer> playersBudget, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, int housePrice, int hotelPrice) {
+
+        int hotelsCount = findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHotels);
+        int housesCount = findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHouses);
+
+        if (hotelsCount > 0 || housesCount > 0) {
+            int sum = housesCount * housePrice + hotelsCount * hotelPrice;
+            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - sum);
+
+            System.out.printf("%s, you repaired %d houses and %d hotels%n", currentPlayer, housesCount, hotelsCount);
+            System.out.println("You paid $" + sum + ".");
+
+        }
+
+
+    }
+
     public static void switchCommunityChest(String communityChestRow,
                                             String currentPlayer,
                                             Map<String, Integer> playersBudget,
                                             Map<String, Integer> playersFieldNumber,
                                             List<String> playersSpecialCards,
                                             Map<String, Boolean> playersInJail,
-                                            List<String> players) {
+                                            List<String> players, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels) {
         switch (communityChestRow) {
             case "Advance to START(Collect $200)":
                 playersFieldNumber.put(currentPlayer, 0);
@@ -545,7 +562,8 @@ public class Monopoly {
                 System.out.println(currentPlayer + ", you received $25");
                 break;
             case "You are assessed for street repair. $40 per house. $115 per hotel":
-                //TODO:
+
+                repairHousesAndHotels(currentPlayer, playersBudget, playersHouses, playersHotels, 40, 115);
                 break;
             case "You have won second prize in a beauty contest. Collect $10":
                 playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 10);
@@ -564,7 +582,7 @@ public class Monopoly {
                 System.out.println(communityChestRow);
 
                 switchCommunityChest(communityChestRow, currentPlayer, playersBudget, playersFieldNumber,
-                        playersSpecialCards.get(currentPlayer), playersInJail, players);
+                        playersSpecialCards.get(currentPlayer), playersInJail, players, playersHouses, playersHotels);
 
                 communityChestCards.offer(communityChestRow);
 
@@ -921,7 +939,6 @@ public class Monopoly {
 
         int numberOfPlayers = enterNumberOfPlayers(scanner);
 
-//        String[] players = new String[numberOfPlayers];
         List<String> players = new ArrayList<>();
 
         fillPlayerNames(players, scanner);
@@ -989,9 +1006,11 @@ public class Monopoly {
 
             while (playersBudget.get(currentPlayer) <= 0) {
                 offerToSell(currentPlayer, playersBudget, playersPurchases.get(currentPlayer), board, scanner, playersHotels, playersHouses, playersPurchases.get(currentPlayer), players);
-                if (playersHotels.get(currentPlayer).isEmpty()
-                        && playersHouses.get(currentPlayer).isEmpty()
+
+                if (findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHotels) == 0
+                        && findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHouses) == 0
                         && playersPurchases.get(currentPlayer).isEmpty()) {
+
                     players.remove(currentPlayer);
                     System.out.println(currentPlayer + "the game over for you!");
                     pressEnterToContinue(scanner);
