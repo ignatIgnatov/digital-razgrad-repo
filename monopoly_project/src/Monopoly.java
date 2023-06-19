@@ -6,6 +6,15 @@ import java.util.*;
 
 public class Monopoly {
 
+    private static String[] getCurrentField(Map<String, Integer> playersFieldNumber, String[] board, String currentPlayer) {
+        String[] currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
+
+        System.out.println("-----------");
+        System.out.println("Current field: " + currentField[0]);
+        System.out.println("-----------");
+        return currentField;
+    }
+
     public static ArrayDeque<String> convertArrayToDeque(String[] communityChest) {
         ArrayDeque<String> result = new ArrayDeque<>();
         for (int j = 0; j < communityChest.length; j++) {
@@ -23,41 +32,32 @@ public class Monopoly {
         String TEXT_YELLOW = "\u001B[33m";
         String TEXT_RESET = "\u001B[0m";
 
-        fieldCard = companyFieldCard(currentField);
-        System.out.println(TEXT_YELLOW + fieldCard + TEXT_RESET);
+        printFieldCard(currentField, TEXT_YELLOW, TEXT_RESET);
 
         if (currentField[1].equals("for rent") && !currentPlayer.equals(currentField[currentField.length - 1])) {
 
-            System.out.println("Do you want to buy " + currentField[0] + "?");
-            System.out.println("Enter 'yes' or 'no': ");
-
-            String answer = scanner.nextLine();
-            while (!answer.equals("yes") && !answer.equals("no")) {
-                answer = scanner.nextLine();
-            }
+            String answer = doYouWontToBuy(currentField, scanner);
 
             if (answer.equals("yes")) {
                 if (moneyValidation(playersBudget.get(currentPlayer), Integer.parseInt(currentField[2]))) {
-                    currentField[1] = "Sold";
-                    currentField[currentField.length - 1] = currentPlayer;
-                    playersPurchases.add(currentField[0]);
-                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - Integer.parseInt(currentField[2]));
 
-                    printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases, playersSpecialCards);
-                    System.out.println(TEXT_YELLOW + companyFieldCard(currentField) + TEXT_RESET);
-                    System.out.println(currentPlayer + ", you bought " + currentField[0]);
+                    sayYesToBuy(currentField, currentPlayer, playersBudget, playersPurchases, playersSpecialCards, playersFieldNumber, board, TEXT_YELLOW, TEXT_RESET);
 
-                    board[playersFieldNumber.get(currentPlayer)] = String.join(", ", currentField);
                 } else {
+
                     System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(currentPlayer) +
                             " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
+
+                    //TODO
                 }
             }
+
         } else if (!currentPlayer.equals(currentField[currentField.length - 1])) {
+
             String fieldOwner = currentField[3];
-            playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + 50);
-            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 50);
-            System.out.printf("%s pays %s an annuity of $%d%n", currentPlayer, fieldOwner, 50);
+            int annuity = 50;
+
+            payAnnuity(currentPlayer, playersBudget, fieldOwner, annuity);
         }
     }
 
@@ -70,34 +70,28 @@ public class Monopoly {
         String TEXT_CYAN = "\u001B[36m";
         String TEXT_RESET = "\u001B[0m";
 
-        fieldCard = colorFieldCard(currentField);
-        System.out.println(TEXT_CYAN + fieldCard + TEXT_RESET);
+        printFieldCard(currentField, TEXT_CYAN, TEXT_RESET);
 
         if (currentField[1].equals("for rent")) {
 
-            System.out.println("Do you want to buy " + currentField[0] + "?");
-            String answer = enterYesOrNo(scanner);
+            String answer = doYouWontToBuy(currentField, scanner);
 
             if (answer.equals("yes")) {
+
                 if (moneyValidation(playersBudget.get(currentPlayer), Integer.parseInt(currentField[2]))) {
 
-                    currentField[1] = "Sold";
-                    currentField[currentField.length - 1] = currentPlayer;
-                    playersPurchases.add(currentField[0]);
-                    playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - Integer.parseInt(currentField[2]));
+                    sayYesToBuy(currentField, currentPlayer, playersBudget, playersPurchases, playersSpecialCards, playersFieldNumber, board, TEXT_CYAN, TEXT_RESET);
 
                     houses.put(currentField[0], 0);
                     hotels.put(currentField[0], 0);
                     playersHouses.put(currentPlayer, houses);
                     playersHotels.put(currentPlayer, hotels);
 
-                    System.out.println(TEXT_CYAN + colorFieldCard(currentField) + TEXT_RESET);
-                    System.out.println(currentPlayer + ", you bought " + currentField[0]);
-
-                    board[playersFieldNumber.get(currentPlayer)] = String.join(", ", currentField);
                 } else {
                     System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(currentPlayer) +
                             " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
+
+                    //TODO
                 }
             }
 
@@ -107,12 +101,12 @@ public class Monopoly {
 
                 String fieldOwner = currentField[currentField.length - 1];
 
-                int annuity = Integer.parseInt(currentField[3]);
+                int housesCount = playersHouses.get(fieldOwner).get(currentField[0]);
+                int hotelsCount = playersHotels.get(fieldOwner).get(currentField[0]);
 
-                playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + annuity);
-                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - annuity);
+                int annuity = getAnnuity(currentField, housesCount, hotelsCount);
 
-                System.out.printf("%s pays %s an annuity of $%d%n", currentPlayer, fieldOwner, annuity);
+                payAnnuity(currentPlayer, playersBudget, fieldOwner, annuity);
 
             } else {
 
@@ -121,6 +115,62 @@ public class Monopoly {
 
             }
         }
+    }
+
+    private static int getAnnuity(String[] currentField, int housesCount, int hotelsCount) {
+        int annuity = 0;
+        if (hotelsCount == 1) {
+            annuity = Integer.parseInt(currentField[9]);
+        } else if (housesCount > 0) {
+            switch (housesCount) {
+                case 1:
+                    annuity = Integer.parseInt(currentField[5]);
+                    break;
+                case 2:
+                    annuity = Integer.parseInt(currentField[6]);
+                    break;
+                case 3:
+                    annuity = Integer.parseInt(currentField[7]);
+                    break;
+                case 4:
+                    annuity = Integer.parseInt(currentField[8]);
+            }
+        } else {
+            annuity = Integer.parseInt(currentField[3]);
+        }
+        return annuity;
+    }
+
+    private static void payAnnuity(String currentPlayer, Map<String, Integer> playersBudget, String fieldOwner, int annuity) {
+        playersBudget.put(fieldOwner, playersBudget.get(fieldOwner) + annuity);
+        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - annuity);
+        System.out.printf("%s pays %s an annuity of $%d%n", currentPlayer, fieldOwner, annuity);
+    }
+
+
+    private static void printFieldCard(String[] currentField, String TEXT_CYAN, String TEXT_RESET) {
+        String fieldCard;
+        fieldCard = colorFieldCard(currentField);
+        System.out.println(TEXT_CYAN + fieldCard + TEXT_RESET);
+    }
+
+    private static void sayYesToBuy(String[] currentField, String currentPlayer, Map<String, Integer> playersBudget, List<String> playersPurchases, List<String> playersSpecialCards, Map<String, Integer> playersFieldNumber, String[] board, String TEXT_YELLOW, String TEXT_RESET) {
+        currentField[1] = "Sold";
+        currentField[currentField.length - 1] = currentPlayer;
+        playersPurchases.add(currentField[0]);
+        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - Integer.parseInt(currentField[2]));
+
+        printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases, playersSpecialCards);
+        System.out.println(TEXT_YELLOW + companyFieldCard(currentField) + TEXT_RESET);
+        System.out.println(currentPlayer + ", you bought " + currentField[0]);
+
+        board[playersFieldNumber.get(currentPlayer)] = String.join(", ", currentField);
+    }
+
+    private static String doYouWontToBuy(String[] currentField, Scanner scanner) {
+        System.out.println("Do you want to buy " + currentField[0] + "?");
+        String answer = enterYesOrNo(scanner);
+        return answer;
     }
 
     public static List<String> colorFields(String[] board) {
@@ -170,6 +220,7 @@ public class Monopoly {
                 System.out.println(currentPlayer + ", you bought a house.");
                 printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases, playersSpecialCards);
             }
+
         } else {
 
             if (hotels.get(currentField[0]) == 0) {
@@ -769,16 +820,6 @@ public class Monopoly {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
-        printLogoOfTheGame();
-
-        int numberOfPlayers = enterNumberOfPlayers(scanner);
-
-        String[] players = new String[numberOfPlayers];
-
-        fillPlayerNames(players, scanner);
-
-        printStart();
-
         Map<String, Integer> playersFieldNumber = new HashMap<>();
         Map<String, Integer> playersBudget = new HashMap<>();
         Map<String, List<String>> playersPurchases = new HashMap<>();
@@ -792,11 +833,19 @@ public class Monopoly {
         Map<String, List<String>> playersSpecialCards = new HashMap<>();
         Map<String, Boolean> playersInJail = new HashMap<>();
 
+        printLogoOfTheGame();
+
+        int numberOfPlayers = enterNumberOfPlayers(scanner);
+
+        String[] players = new String[numberOfPlayers];
+
+        fillPlayerNames(players, scanner);
+
         for (int i = 0; i < players.length; i++) {
             playersBudget.put(players[i], 1500);
+            playersFieldNumber.put(players[i], 0);
             playersPurchases.put(players[i], new ArrayList<>());
             playersSpecialCards.put(players[i], new ArrayList<>());
-            playersFieldNumber.put(players[i], 0);
             playersInJail.put(players[i], false);
             playersHouses.put(players[i], new HashMap<>());
             playersHotels.put(players[i], new HashMap<>());
@@ -817,6 +866,8 @@ public class Monopoly {
             houses.put(colorFields(board).get(i), 0);
             hotels.put(colorFields(board).get(i), 0);
         }
+
+        printStart();
 
         int jailCounter = 0;
 
@@ -865,11 +916,7 @@ public class Monopoly {
 
             }
 
-            String[] currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
-
-            System.out.println("-----------");
-            System.out.println("Current field: " + currentField[0]);
-            System.out.println("-----------");
+            String[] currentField = getCurrentField(playersFieldNumber, board, currentPlayer);
 
             pressEnterToContinue(scanner);
 
