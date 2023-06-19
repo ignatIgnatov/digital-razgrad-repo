@@ -25,9 +25,8 @@ public class Monopoly {
     public static void buyCompanyField(String[] currentField, Scanner scanner, String currentPlayer,
                                        Map<String, Integer> playersBudget, List<String> playersPurchases,
                                        List<String> playersSpecialCards, Map<String, Integer> playersFieldNumber,
-                                       String[] board, String fieldCard) {
+                                       String[] board, String fieldCard, Map<String, Map<String, Integer>> playersHotels, Map<String, Map<String, Integer>> playersHouses, List<String> players) {
 
-        String TEXT_RED = "\u001B[31m";
         String TEXT_YELLOW = "\u001B[33m";
         String TEXT_RESET = "\u001B[0m";
 
@@ -43,11 +42,7 @@ public class Monopoly {
                     sayYesToBuy(currentField, currentPlayer, playersBudget, playersPurchases, playersSpecialCards, playersFieldNumber, board, TEXT_YELLOW, TEXT_RESET);
 
                 } else {
-
-                    System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(currentPlayer) +
-                            " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
-
-                    //TODO
+                    offerToSell(currentPlayer, playersBudget, playersPurchases, board, scanner, playersHotels, playersHouses, playersPurchases, players);
                 }
             }
 
@@ -64,9 +59,8 @@ public class Monopoly {
                                      Map<String, Integer> playersBudget, List<String> playersPurchases,
                                      List<String> playersSpecialCards, Map<String, Integer> playersFieldNumber,
                                      String[] board, String fieldCard, Map<String, Integer> houses, Map<String, Integer> hotels,
-                                     Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels) {
+                                     Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, List<String> players) {
 
-        String TEXT_RED = "\u001B[31m";
         String TEXT_CYAN = "\u001B[36m";
         String TEXT_RESET = "\u001B[0m";
 
@@ -88,20 +82,7 @@ public class Monopoly {
                     playersHotels.put(currentPlayer, hotels);
 
                 } else {
-                    System.out.println(TEXT_RED + "Not enough money! You have $" + playersBudget.get(currentPlayer) +
-                            " and the price is $" + Integer.parseInt(currentField[2]) + TEXT_RESET);
-
-                    int playerHotels = findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHotels);
-                    int playerHouses = findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHouses);
-
-                    if (playerHotels > 0) {
-
-                        seeHotel(scanner, currentPlayer, playersBudget, board, playersHotels, playerHotels);
-
-                    } else if (playerHouses > 0) {
-
-                        sellHouse(scanner, currentPlayer, playersBudget, board, playersHouses, playersHotels, playerHouses);
-                    }
+                    offerToSell(currentPlayer, playersBudget, playersPurchases, board, scanner, playersHotels, playersHouses, playersPurchases, players);
                 }
             }
 
@@ -142,7 +123,7 @@ public class Monopoly {
         pressEnterToContinue(scanner);
     }
 
-    private static void seeHotel(Scanner scanner, String currentPlayer, Map<String, Integer> playersBudget, String[] board, Map<String, Map<String, Integer>> playersHotels, int playerHotels) {
+    private static void sellHotel(Scanner scanner, String currentPlayer, Map<String, Integer> playersBudget, String[] board, Map<String, Map<String, Integer>> playersHotels, int playerHotels) {
         System.out.println(currentPlayer + ", you have " + playerHotels + " hotels. You have to sell one of them");
         System.out.println("These are your hotels: ");
 
@@ -229,7 +210,6 @@ public class Monopoly {
         playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - annuity);
         System.out.printf("%s pays %s an annuity of $%d%n", currentPlayer, fieldOwner, annuity);
     }
-
 
     private static void printFieldCard(String[] currentField, String TEXT_CYAN, String TEXT_RESET) {
         String fieldCard;
@@ -332,7 +312,7 @@ public class Monopoly {
     public static void switchChance(String chanceRow, Map<String, Integer> playersFieldNumber,
                                     String currentPlayer, Map<String, Integer> playersBudget,
                                     List<String> playersSpecialCards, Map<String, Boolean> playersInJail,
-                                    String[] players, List<String> playersPurchases, String[] board, Scanner scanner, String[] currentField, String fieldCard, Map<String, Integer> houses, Map<String, Integer> hotels, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels) {
+                                    List<String> players, List<String> playersPurchases, String[] board, Scanner scanner, String[] currentField, String fieldCard, Map<String, Integer> houses, Map<String, Integer> hotels, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels) {
         switch (chanceRow) {
             case "Advance to Boardwalk":
 
@@ -344,7 +324,7 @@ public class Monopoly {
 
                 buyColorField(currentField, scanner, currentPlayer, playersBudget,
                         playersPurchases, playersSpecialCards, playersFieldNumber,
-                        board, fieldCard, houses, hotels, playersHouses, playersHotels);
+                        board, fieldCard, houses, hotels, playersHouses, playersHotels, players);
                 break;
             case "Advance to START (Collect $200)":
 
@@ -368,7 +348,7 @@ public class Monopoly {
 
                 buyColorField(currentField, scanner, currentPlayer, playersBudget,
                         playersPurchases, playersSpecialCards, playersFieldNumber,
-                        board, fieldCard, houses, hotels, playersHouses, playersHotels);
+                        board, fieldCard, houses, hotels, playersHouses, playersHotels, players);
 
                 break;
             case "Advance to St. Charles Place. If you pass START, collect $200":
@@ -387,7 +367,7 @@ public class Monopoly {
 
                 buyColorField(currentField, scanner, currentPlayer, playersBudget,
                         playersPurchases, playersSpecialCards, playersFieldNumber,
-                        board, fieldCard, houses, hotels, playersHouses, playersHotels);
+                        board, fieldCard, houses, hotels, playersHouses, playersHotels, players);
 
                 break;
             case "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, " +
@@ -411,7 +391,7 @@ public class Monopoly {
                 currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
 
                 buyCompanyField(currentField, scanner, currentPlayer, playersBudget, playersPurchases,
-                        playersSpecialCards, playersFieldNumber, board, fieldCard);
+                        playersSpecialCards, playersFieldNumber, board, fieldCard, playersHotels, playersHouses, players);
 
                 break;
             case "Advance token to nearest Utility. If unowned, you may buy it from the Bank.":
@@ -429,7 +409,7 @@ public class Monopoly {
                 currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
 
                 buyCompanyField(currentField, scanner, currentPlayer, playersBudget, playersPurchases,
-                        playersSpecialCards, playersFieldNumber, board, fieldCard);
+                        playersSpecialCards, playersFieldNumber, board, fieldCard, playersHotels, playersHouses, players);
 
                 break;
             case "Bank pays you dividend of $50":
@@ -479,14 +459,14 @@ public class Monopoly {
                 currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
 
                 buyCompanyField(currentField, scanner, currentPlayer, playersBudget, playersPurchases,
-                        playersSpecialCards, playersFieldNumber, board, fieldCard);
+                        playersSpecialCards, playersFieldNumber, board, fieldCard, playersHotels, playersHouses, players);
 
                 break;
             case "You have been elected Chairman of the Board. Pay each player $50":
 
                 int sum = 0;
-                for (int j = 0; j < players.length; j++) {
-                    String current = players[j];
+                for (int j = 0; j < players.size(); j++) {
+                    String current = players.get(j);
                     playersBudget.put(current, playersBudget.get(current) + 50);
                     sum += 50;
                 }
@@ -506,7 +486,7 @@ public class Monopoly {
                                             Map<String, Integer> playersFieldNumber,
                                             List<String> playersSpecialCards,
                                             Map<String, Boolean> playersInJail,
-                                            String[] players) {
+                                            List<String> players) {
         switch (communityChestRow) {
             case "Advance to START(Collect $200)":
                 playersFieldNumber.put(currentPlayer, 0);
@@ -546,8 +526,8 @@ public class Monopoly {
                 break;
             case "It is your birthday. Collect $10 from every player":
                 int sum = 0;
-                for (int k = 0; k < players.length; k++) {
-                    String current = players[k];
+                for (int k = 0; k < players.size(); k++) {
+                    String current = players.get(k);
                     if (!current.equals(currentPlayer)) {
                         playersBudget.put(current, playersBudget.get(current) - 10);
                         sum += 10;
@@ -574,15 +554,12 @@ public class Monopoly {
         }
     }
 
-    private static void switchOtherFields(Scanner scanner, String[] players, Map<String, Integer> playersFieldNumber, Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, Map<String, Integer> houses, Map<String, Integer> hotels, Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, String[] board, ArrayDeque<String> communityChestCards, ArrayDeque<String> chanceCards, String currentPlayer, String[] currentField, String fieldCard) {
+    private static void switchOtherFields(Scanner scanner, List<String> players, Map<String, Integer> playersFieldNumber, Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, Map<String, Integer> houses, Map<String, Integer> hotels, Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, String[] board, ArrayDeque<String> communityChestCards, ArrayDeque<String> chanceCards, String currentPlayer, String[] currentField, String fieldCard) {
         switch (currentField[0]) {
             case "START":
-
                 System.out.println("You become $200");
-
                 break;
             case "Community Chest":
-
                 String communityChestRow = communityChestCards.poll();
                 System.out.println(communityChestRow);
 
@@ -710,40 +687,64 @@ public class Monopoly {
         return sb.toString();
     }
 
-    public static void checkForEnoughMoney(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner) {
-        if (playersBudget.get(currentPlayer) <= 0) {
-            System.out.println("You have no money!");
-            System.out.println("Do you want to sell any of your properties?");
-            String answer = enterYesOrNo(scanner);
-            if (answer.equals("yes")) {
-                System.out.println(currentPlayer + ", you have the following properties:");
-                for (int j = 0; j < properties.size(); j++) {
-                    String current = properties.get(j);
-                    System.out.println(j + 1 + ". " + current);
-                }
-                System.out.print("Enter the number of the property you want to sell:");
-                int numberOfProperty = scanner.nextInt();
-                while (numberOfProperty < 1 || numberOfProperty > properties.size()) {
-                    System.out.println("Enter correct number of property:");
-                    numberOfProperty = scanner.nextInt();
-                }
-                String propertyName = properties.get(numberOfProperty - 1);
-                String[] currentProperty = findFieldByName(propertyName, board);
-                int indexOfProperty = findIndexOfProperty(propertyName, board);
+    public static void offerToSell(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner, Map<String, Map<String, Integer>> playersHotels, Map<String, Map<String, Integer>> playersHouses, List<String> playersPurchases, List<String> players) {
 
-                properties.remove(numberOfProperty - 1);
-                playersBudget.put(currentPlayer, Integer.parseInt(currentProperty[2]));
+        System.out.println("You don't have enough money!");
+        System.out.println("You need to sell one of your properties.");
 
-                currentProperty[1] = "for rent";
-                currentProperty[currentProperty.length - 1] = "none";
+        pressEnterToContinue(scanner);
 
-                board[indexOfProperty] = String.join(", ", currentProperty);
+        int playerHotels = findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHotels);
+        int playerHouses = findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHouses);
 
-                System.out.println("You sold a property " + propertyName);
-                scanner.nextLine();
+        sellEntity(currentPlayer, playersBudget, properties, board, scanner, playersHotels, playersHouses, playerHotels, playerHouses, playersPurchases, players);
 
-            }
+    }
+
+    private static void sellEntity(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner, Map<String, Map<String, Integer>> playersHotels, Map<String, Map<String, Integer>> playersHouses, int playerHotels, int playerHouses, List<String> playersPurchases, List<String> players) {
+        if (playerHotels > 0) {
+
+            sellHotel(scanner, currentPlayer, playersBudget, board, playersHotels, playerHotels);
+
+        } else if (playerHouses > 0) {
+
+            sellHouse(scanner, currentPlayer, playersBudget, board, playersHouses, playersHotels, playerHouses);
+
+        } else if (playersPurchases.size() > 0) {
+
+            sellProperty(currentPlayer, playersBudget, properties, board, scanner);
+        } else {
+
+            players.remove(currentPlayer);
         }
+    }
+
+    private static void sellProperty(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner) {
+        System.out.println(currentPlayer + ", you have the following properties:");
+        for (int j = 0; j < properties.size(); j++) {
+            String current = properties.get(j);
+            System.out.println(j + 1 + ". " + current);
+        }
+        System.out.print("Enter the number of the property you want to sell:");
+        int numberOfProperty = scanner.nextInt();
+        while (numberOfProperty < 1 || numberOfProperty > properties.size()) {
+            System.out.println("Enter correct number of property:");
+            numberOfProperty = scanner.nextInt();
+        }
+        String propertyName = properties.get(numberOfProperty - 1);
+        String[] currentProperty = findFieldByName(propertyName, board);
+        int indexOfProperty = findIndexOfProperty(propertyName, board);
+
+        properties.remove(numberOfProperty - 1);
+        playersBudget.put(currentPlayer, Integer.parseInt(currentProperty[2]));
+
+        currentProperty[1] = "for rent";
+        currentProperty[currentProperty.length - 1] = "none";
+
+        board[indexOfProperty] = String.join(", ", currentProperty);
+
+        System.out.println("You sold a property " + propertyName);
+        scanner.nextLine();
     }
 
     public static String[] findFieldByName(String name, String[] board) {
@@ -789,9 +790,9 @@ public class Monopoly {
         return name;
     }
 
-    public static String checkForSameName(String currentName, String[] names, Scanner scanner) {
-        for (int i = 0; i < names.length; ) {
-            if (currentName.equals(names[i])) {
+    public static String checkForSameName(String currentName, List<String> names, Scanner scanner) {
+        for (int i = 0; i < names.size(); ) {
+            if (currentName.equals(names.get(i))) {
                 System.out.print("This name is already taken. Enter another name: ");
                 currentName = scanner.nextLine();
                 currentName = checkForEmptyName(currentName, scanner);
@@ -834,8 +835,8 @@ public class Monopoly {
         return numberOfPlayers;
     }
 
-    public static void fillPlayerNames(String[] players, Scanner scanner) {
-        for (int i = 0; i < players.length; i++) {
+    public static void fillPlayerNames(List<String> players, Scanner scanner) {
+        for (int i = 0; i < players.size(); i++) {
             System.out.printf("Enter Player %d name: ", i + 1);
             String currentName = scanner.nextLine();
             currentName = checkForEmptyName(currentName, scanner);
@@ -844,7 +845,7 @@ public class Monopoly {
                 currentName = checkForSameName(currentName, players, scanner);
             }
 
-            players[i] = currentName;
+            players.add(currentName);
         }
     }
 
@@ -920,19 +921,10 @@ public class Monopoly {
 
         int numberOfPlayers = enterNumberOfPlayers(scanner);
 
-        String[] players = new String[numberOfPlayers];
+//        String[] players = new String[numberOfPlayers];
+        List<String> players = new ArrayList<>();
 
         fillPlayerNames(players, scanner);
-
-        for (int i = 0; i < players.length; i++) {
-            playersBudget.put(players[i], 1500);
-            playersFieldNumber.put(players[i], 0);
-            playersPurchases.put(players[i], new ArrayList<>());
-            playersSpecialCards.put(players[i], new ArrayList<>());
-            playersInJail.put(players[i], false);
-            playersHouses.put(players[i], new HashMap<>());
-            playersHotels.put(players[i], new HashMap<>());
-        }
 
         //попълване на игралната дъска от файла BoardFields.txt
         String[] board = arrayFromFile("dataBase/BoardFields.txt", 40);
@@ -945,6 +937,16 @@ public class Monopoly {
         String[] chance = arrayFromFile("dataBase/Chance.txt", 16);
         ArrayDeque<String> chanceCards = convertArrayToDeque(chance);
 
+        for (int i = 0; i < players.size(); i++) {
+            playersBudget.put(players.get(i), 1500);
+            playersFieldNumber.put(players.get(i), 0);
+            playersPurchases.put(players.get(i), new ArrayList<>());
+            playersSpecialCards.put(players.get(i), new ArrayList<>());
+            playersInJail.put(players.get(i), false);
+            playersHouses.put(players.get(i), new HashMap<>());
+            playersHotels.put(players.get(i), new HashMap<>());
+        }
+
         for (int i = 0; i < colorFields(board).size(); i++) {
             houses.put(colorFields(board).get(i), 0);
             hotels.put(colorFields(board).get(i), 0);
@@ -954,8 +956,8 @@ public class Monopoly {
 
         int jailCounter = 0;
 
-        for (int i = 0; i < players.length; i++) {
-            String currentPlayer = players[i];
+        for (int i = 0; i < players.size(); i++) {
+            String currentPlayer = players.get(i);
             int moveNumber = 0;
 
             if (playersInJail.get(currentPlayer)) {
@@ -974,7 +976,7 @@ public class Monopoly {
                             playersInJail.put(currentPlayer, false);
                             jailCounter = 0;
                         }
-                        if (i == players.length - 1) {
+                        if (i == players.size() - 1) {
                             i = -1;
                             System.out.println("Next turn!");
                         } else {
@@ -985,7 +987,16 @@ public class Monopoly {
                 }
             }
 
-            checkForEnoughMoney(currentPlayer, playersBudget, playersPurchases.get(currentPlayer), board, scanner);
+            while (playersBudget.get(currentPlayer) <= 0) {
+                offerToSell(currentPlayer, playersBudget, playersPurchases.get(currentPlayer), board, scanner, playersHotels, playersHouses, playersPurchases.get(currentPlayer), players);
+                if (playersHotels.get(currentPlayer).isEmpty()
+                        && playersHouses.get(currentPlayer).isEmpty()
+                        && playersPurchases.get(currentPlayer).isEmpty()) {
+                    players.remove(currentPlayer);
+                    System.out.println(currentPlayer + "the game over for you!");
+                    pressEnterToContinue(scanner);
+                }
+            }
 
             moveNumber = rollTheDice(currentPlayer, scanner);
 
@@ -1021,23 +1032,21 @@ public class Monopoly {
                     buyColorField(currentField, scanner, currentPlayer,
                             playersBudget, playersPurchases.get(currentPlayer),
                             playersSpecialCards.get(currentPlayer), playersFieldNumber,
-                            board, fieldCard, houses, hotels, playersHouses, playersHotels);
-
+                            board, fieldCard, houses, hotels, playersHouses, playersHotels, players);
 
                     break;
-
                 case 5, 12, 15, 25, 28, 35:
 
                     buyCompanyField(currentField, scanner, currentPlayer, playersBudget,
                             playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer),
-                            playersFieldNumber, board, fieldCard);
+                            playersFieldNumber, board, fieldCard, playersHotels, playersHouses, players);
 
                     break;
             }
 
             printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer));
 
-            if (i == players.length - 1) {
+            if (i == players.size() - 1) {
                 i = -1;
                 System.out.println("Next turn!");
             } else {
