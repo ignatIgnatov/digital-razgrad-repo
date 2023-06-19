@@ -949,6 +949,17 @@ public class Monopoly {
         }
     }
 
+    private static int nextTurn(List<String> players, int index) {
+        if (index == players.size() - 1) {
+            index = -1;
+            System.out.println("Next turn!");
+        } else {
+            System.out.println("-----------");
+            System.out.println("Next player!");
+        }
+        return index;
+    }
+
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
@@ -988,7 +999,7 @@ public class Monopoly {
         ArrayDeque<String> chanceCards = convertArrayToDeque(chance);
 
         for (int i = 0; i < players.size(); i++) {
-            playersBudget.put(players.get(i), 1500);
+            playersBudget.put(players.get(i), 0);
             playersFieldNumber.put(players.get(i), 0);
             playersPurchases.put(players.get(i), new ArrayList<>());
             playersSpecialCards.put(players.get(i), new ArrayList<>());
@@ -1058,11 +1069,13 @@ public class Monopoly {
                 }
             }
 
-
             String winner = checkForWinner(playersBudget, playersPurchases, playersSpecialCards, numberOfPlayers, players, currentPlayer, playersHouses, playersHotels);
 
             if (!winner.equals("")) {
                 return;
+            } else {
+                i = nextTurn(players, i);
+                currentPlayer = players.get(i);
             }
 
             moveNumber = rollTheDice(currentPlayer, scanner);
@@ -1107,13 +1120,7 @@ public class Monopoly {
 
             printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer), playersHouses, playersHotels);
 
-            if (i == players.size() - 1) {
-                i = -1;
-                System.out.println("Next turn!");
-            } else {
-                System.out.println("-----------");
-                System.out.println("Next player!");
-            }
+            i = nextTurn(players, i);
 
             pressEnterToContinue(scanner);
         }
