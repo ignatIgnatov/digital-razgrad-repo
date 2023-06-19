@@ -5,6 +5,17 @@ import java.util.*;
 
 public class Monopoly {
 
+    private static void checkForWinner(Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, List<String>> playersSpecialCards, int numberOfPlayers, List<String> players) {
+        if (numberOfPlayers != players.size() && players.size() == 1) {
+            String winner = players.get(0);
+
+            printPlayerStats(winner, playersBudget.get(winner), playersPurchases.get(winner), playersSpecialCards.get(winner));
+
+            System.out.println("-----------");
+            System.out.println("*****" + winner + ", YOU WIN! *****");
+        }
+    }
+
     private static void resetFields(Scanner scanner, Map<String, Integer> playersFieldNumber, Map<String, Integer> playersBudget, String currentPlayer) {
         if (playersFieldNumber.get(currentPlayer) >= 40) {
 
@@ -1025,6 +1036,8 @@ public class Monopoly {
                     pressEnterToContinue(scanner);
                 }
             }
+
+            checkForWinner(playersBudget, playersPurchases, playersSpecialCards, numberOfPlayers, players);
 
             moveNumber = rollTheDice(currentPlayer, scanner);
 
