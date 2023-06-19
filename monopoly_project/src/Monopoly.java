@@ -5,7 +5,7 @@ import java.util.*;
 
 public class Monopoly {
 
-    private static void checkForWinner(Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, List<String>> playersSpecialCards, int numberOfPlayers, List<String> players) {
+    private static void checkForWinner(Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, List<String>> playersSpecialCards, int numberOfPlayers, List<String> players, String currentPlayer) {
         if (numberOfPlayers != players.size() && players.size() == 1) {
             String winner = players.get(0);
 
@@ -13,6 +13,13 @@ public class Monopoly {
 
             System.out.println("-----------");
             System.out.println("*****" + winner + ", YOU WIN! *****");
+
+        } else if (numberOfPlayers == 1 && players.isEmpty()) {
+
+            System.out.println("-----------");
+            System.out.println("GAME OVER!");
+            System.out.println(currentPlayer + ", you lost the game!");
+
         }
     }
 
@@ -1037,7 +1044,7 @@ public class Monopoly {
                 }
             }
 
-            checkForWinner(playersBudget, playersPurchases, playersSpecialCards, numberOfPlayers, players);
+            checkForWinner(playersBudget, playersPurchases, playersSpecialCards, numberOfPlayers, players, currentPlayer);
 
             moveNumber = rollTheDice(currentPlayer, scanner);
 
