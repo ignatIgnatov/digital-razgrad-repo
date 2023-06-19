@@ -959,6 +959,7 @@ public class Monopoly {
         Map<String, Integer> playersFieldNumber = new HashMap<>();
         Map<String, Integer> playersBudget = new HashMap<>();
         Map<String, List<String>> playersPurchases = new HashMap<>();
+        Map<String, Integer> playersJailCounter = new HashMap<>();
         Map<String, Map<String, Integer>> colorSet = new HashMap<>();
 
         Map<String, Map<String, Integer>> playersHouses = new HashMap<>();
@@ -995,6 +996,7 @@ public class Monopoly {
             playersHouses.put(players.get(i), new HashMap<>());
             playersHotels.put(players.get(i), new HashMap<>());
             colorSet.put(players.get(i), new HashMap<>());
+            playersJailCounter.put(players.get(i), 0);
         }
 
         for (int i = 0; i < colorFields(board).size(); i++) {
@@ -1004,8 +1006,6 @@ public class Monopoly {
         }
 
         printStart();
-
-        int jailCounter = 0;
 
         for (int i = 0; i < players.size(); i++) {
             String currentPlayer = players.get(i);
@@ -1020,15 +1020,15 @@ public class Monopoly {
                     moveNumber = rollTheDice(currentPlayer, scanner);
                     if (moveNumber == 12) {
                         playersInJail.put(currentPlayer, false);
-                        jailCounter = 0;
+                        playersJailCounter.put(currentPlayer, 0);
                         System.out.println(currentPlayer + ", you roll 12 and you're out of jail");
                         pressEnterToContinue(scanner);
                     } else {
-                        jailCounter++;
-                        if (jailCounter == 3) {
+                        playersJailCounter.put(currentPlayer, playersJailCounter.get(currentPlayer) + 1);
+                        if (playersJailCounter.get(currentPlayer) == 3) {
                             playersInJail.put(currentPlayer, false);
                             playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 150);
-                            jailCounter = 0;
+                            playersJailCounter.put(currentPlayer, 0);
                             System.out.println(currentPlayer + ", you pay $150 and get out of jail.");
                             pressEnterToContinue(scanner);
                         }
@@ -1114,6 +1114,7 @@ public class Monopoly {
                 System.out.println("-----------");
                 System.out.println("Next player!");
             }
+
             pressEnterToContinue(scanner);
         }
     }
