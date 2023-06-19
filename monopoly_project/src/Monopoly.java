@@ -5,6 +5,16 @@ import java.util.*;
 
 public class Monopoly {
 
+    private static void resetFields(Scanner scanner, Map<String, Integer> playersFieldNumber, Map<String, Integer> playersBudget, String currentPlayer) {
+        if (playersFieldNumber.get(currentPlayer) >= 40) {
+
+            playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 40);
+            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+            goTroughTheStart(currentPlayer, scanner);
+
+        }
+    }
+
     private static String[] getCurrentField(Map<String, Integer> playersFieldNumber, String[] board, String currentPlayer) {
         String[] currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
 
@@ -562,7 +572,6 @@ public class Monopoly {
                 System.out.println(currentPlayer + ", you received $25");
                 break;
             case "You are assessed for street repair. $40 per house. $115 per hotel":
-
                 repairHousesAndHotels(currentPlayer, playersBudget, playersHouses, playersHotels, 40, 115);
                 break;
             case "You have won second prize in a beauty contest. Collect $10":
@@ -1021,13 +1030,7 @@ public class Monopoly {
 
             playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) + moveNumber);
 
-            if (playersFieldNumber.get(currentPlayer) >= 40) {
-
-                playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 40);
-                playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
-                goTroughTheStart(currentPlayer, scanner);
-
-            }
+            resetFields(scanner, playersFieldNumber, playersBudget, currentPlayer);
 
             String[] currentField = getCurrentField(playersFieldNumber, board, currentPlayer);
 
