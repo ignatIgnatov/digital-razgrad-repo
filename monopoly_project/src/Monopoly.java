@@ -990,6 +990,82 @@ public class Monopoly {
         }
     }
 
+    private static int turnNextPlayer(Scanner scanner, List<String> players, int index) {
+        index++;
+        index = checkIndex(players, index);
+        System.out.println("Next player!");
+        pressEnterToContinue(scanner);
+        return index;
+    }
+
+    private static void checkForEnoughMoney(Scanner scanner, Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, List<String> players, String[] board, int index, String currentPlayer) {
+        while (playersBudget.get(currentPlayer) < 0) {
+
+            offerToSell(currentPlayer, playersBudget, playersPurchases.get(currentPlayer), board, scanner, playersHotels, playersHouses, playersPurchases.get(currentPlayer), players);
+
+            if (playersBudget.get(currentPlayer) >= 0) {
+                break;
+            }
+
+            if (findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHotels) == 0
+                    && findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHouses) == 0
+                    && playersPurchases.get(currentPlayer).isEmpty()
+                    && playersBudget.get(currentPlayer) < 0) {
+
+                players.remove(currentPlayer);
+
+                System.out.println("The game over for you!");
+                pressEnterToContinue(scanner);
+                break;
+            }
+        }
+    }
+
+    private static void stayInJail(int moveNumber, Scanner scanner, Map<String, Integer> playersBudget, Map<String, Integer> playersJailCounter, Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, List<String> players, int index, String currentPlayer) {
+        if (playersSpecialCards.get(currentPlayer).contains("Get Out of Jail Free")) {
+            usePlayerCardInJail(playersSpecialCards, playersInJail, currentPlayer);
+        } else {
+            System.out.printf("%s, you are In Jail. You must roll 12", currentPlayer);
+            moveNumber = rollTheDice(currentPlayer, scanner);
+            if (moveNumber == 12) {
+                rollTwelveInJail(scanner, playersJailCounter, playersInJail, currentPlayer);
+            } else {
+                rollThreeTimesInJail(scanner, playersBudget, playersJailCounter, playersInJail, currentPlayer);
+            }
+        }
+    }
+
+    private static void usePlayerCardInJail(Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, String currentPlayer) {
+        playersInJail.put(currentPlayer, false);
+        playersSpecialCards.get(currentPlayer).remove(0);
+    }
+
+    private static void rollThreeTimesInJail(Scanner scanner, Map<String, Integer> playersBudget, Map<String, Integer> playersJailCounter, Map<String, Boolean> playersInJail, String currentPlayer) {
+        playersJailCounter.put(currentPlayer, playersJailCounter.get(currentPlayer) + 1);
+
+        if (playersJailCounter.get(currentPlayer) == 3) {
+            playersInJail.put(currentPlayer, false);
+            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 150);
+            playersJailCounter.put(currentPlayer, 0);
+            System.out.println(currentPlayer + ", you pay $150 and get out of jail.");
+            pressEnterToContinue(scanner);
+        }
+    }
+
+    private static void rollTwelveInJail(Scanner scanner, Map<String, Integer> playersJailCounter, Map<String, Boolean> playersInJail, String currentPlayer) {
+        playersInJail.put(currentPlayer, false);
+        playersJailCounter.put(currentPlayer, 0);
+        System.out.println(currentPlayer + ", you roll 12 and you're out of jail");
+        pressEnterToContinue(scanner);
+    }
+
+    private static int checkIndex(List<String> players, int index) {
+        if (index == players.size()) {
+            index = 0;
+        }
+        return index;
+    }
+
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
@@ -1134,82 +1210,6 @@ public class Monopoly {
 
             index = turnNextPlayer(scanner, players, index);
         }
-    }
-
-    private static int turnNextPlayer(Scanner scanner, List<String> players, int index) {
-        index++;
-        index = checkIndex(players, index);
-        System.out.println("Next player!");
-        pressEnterToContinue(scanner);
-        return index;
-    }
-
-    private static void checkForEnoughMoney(Scanner scanner, Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, List<String> players, String[] board, int index, String currentPlayer) {
-        while (playersBudget.get(currentPlayer) < 0) {
-
-            offerToSell(currentPlayer, playersBudget, playersPurchases.get(currentPlayer), board, scanner, playersHotels, playersHouses, playersPurchases.get(currentPlayer), players);
-
-            if (playersBudget.get(currentPlayer) >= 0) {
-                break;
-            }
-
-            if (findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHotels) == 0
-                    && findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHouses) == 0
-                    && playersPurchases.get(currentPlayer).isEmpty()
-                    && playersBudget.get(currentPlayer) < 0) {
-
-                players.remove(currentPlayer);
-
-                System.out.println("The game over for you!");
-                pressEnterToContinue(scanner);
-                break;
-            }
-        }
-    }
-
-    private static void stayInJail(int moveNumber, Scanner scanner, Map<String, Integer> playersBudget, Map<String, Integer> playersJailCounter, Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, List<String> players, int index, String currentPlayer) {
-        if (playersSpecialCards.get(currentPlayer).contains("Get Out of Jail Free")) {
-            usePlayerCardInJail(playersSpecialCards, playersInJail, currentPlayer);
-        } else {
-            System.out.printf("%s, you are In Jail. You must roll 12", currentPlayer);
-            moveNumber = rollTheDice(currentPlayer, scanner);
-            if (moveNumber == 12) {
-                rollTwelveInJail(scanner, playersJailCounter, playersInJail, currentPlayer);
-            } else {
-                rollThreeTimesInJail(scanner, playersBudget, playersJailCounter, playersInJail, currentPlayer);
-            }
-        }
-    }
-
-    private static void usePlayerCardInJail(Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, String currentPlayer) {
-        playersInJail.put(currentPlayer, false);
-        playersSpecialCards.get(currentPlayer).remove(0);
-    }
-
-    private static void rollThreeTimesInJail(Scanner scanner, Map<String, Integer> playersBudget, Map<String, Integer> playersJailCounter, Map<String, Boolean> playersInJail, String currentPlayer) {
-        playersJailCounter.put(currentPlayer, playersJailCounter.get(currentPlayer) + 1);
-
-        if (playersJailCounter.get(currentPlayer) == 3) {
-            playersInJail.put(currentPlayer, false);
-            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 150);
-            playersJailCounter.put(currentPlayer, 0);
-            System.out.println(currentPlayer + ", you pay $150 and get out of jail.");
-            pressEnterToContinue(scanner);
-        }
-    }
-
-    private static void rollTwelveInJail(Scanner scanner, Map<String, Integer> playersJailCounter, Map<String, Boolean> playersInJail, String currentPlayer) {
-        playersInJail.put(currentPlayer, false);
-        playersJailCounter.put(currentPlayer, 0);
-        System.out.println(currentPlayer + ", you roll 12 and you're out of jail");
-        pressEnterToContinue(scanner);
-    }
-
-    private static int checkIndex(List<String> players, int index) {
-        if (index == players.size()) {
-            index = 0;
-        }
-        return index;
     }
 }
 
