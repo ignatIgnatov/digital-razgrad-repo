@@ -769,7 +769,7 @@ public class Monopoly {
 
     public static void offerToSell(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner, Map<String, Map<String, Integer>> playersHotels, Map<String, Map<String, Integer>> playersHouses, List<String> playersPurchases, List<String> players) {
 
-        System.out.println("You don't have enough money!");
+        System.out.println(currentPlayer + " you don't have enough money!");
         System.out.println("You need to sell one of your properties.");
 
         pressEnterToContinue(scanner);
@@ -1054,22 +1054,28 @@ public class Monopoly {
             int moveNumber = 0;
 
             if (playersInJail.get(currentPlayer)) {
-                if (playersSpecialCards.get(currentPlayer).contains("Get Out of Jail Free")) {
-                    usePlayerCardInJail(playersSpecialCards, playersInJail, currentPlayer);
+
+                stayInJail(moveNumber, scanner, playersBudget, playersJailCounter, playersSpecialCards, playersInJail, players, index, currentPlayer);
+                index = turnNextPlayer(scanner, players, index);
+                continue;
+            }
+
+            if (playersBudget.get(currentPlayer) < 0) {
+
+                checkForEnoughMoney(scanner, playersBudget, playersPurchases, playersHouses,
+                        playersHotels, players, board, index, currentPlayer);
+
+                String winner = checkForWinner(playersBudget, playersPurchases, playersSpecialCards, numberOfPlayers, players, currentPlayer, playersHouses, playersHotels);
+
+                if (!winner.equals("")) {
+                    return;
                 } else {
-                    System.out.printf("%s, you are In Jail. You must roll 12", currentPlayer);
-                    moveNumber = rollTheDice(currentPlayer, scanner);
-                    if (moveNumber == 12) {
-                        rollTwelveInJail(scanner, playersJailCounter, playersInJail, currentPlayer);
-                    } else {
-                        rollThreeTimesInJail(scanner, playersBudget, playersJailCounter, playersInJail, currentPlayer);
-                        index++;
-                        index = checkIndex(players, index);
-                        System.out.println("Next player!");
-                        pressEnterToContinue(scanner);
-                        continue;
-                    }
+                    index--;
                 }
+
+                index = turnNextPlayer(scanner, players, index);
+
+                continue;
             }
 
             moveNumber = rollTheDice(currentPlayer, scanner);
@@ -1116,37 +1122,62 @@ public class Monopoly {
 
             printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases.get(currentPlayer), playersSpecialCards.get(currentPlayer), playersHouses, playersHotels);
 
-            while (playersBudget.get(currentPlayer) < 0) {
-
-                offerToSell(currentPlayer, playersBudget, playersPurchases.get(currentPlayer), board, scanner, playersHotels, playersHouses, playersPurchases.get(currentPlayer), players);
-
-                if (playersBudget.get(currentPlayer) >= 0) {
-                    break;
-                }
-
-                if (findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHotels) == 0
-                        && findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHouses) == 0
-                        && playersPurchases.get(currentPlayer).isEmpty()
-                        && playersBudget.get(currentPlayer) < 0) {
-
-                    players.remove(currentPlayer);
-
-                    System.out.println("The game over for you!");
-                    pressEnterToContinue(scanner);
-                    break;
-                }
-            }
+            checkForEnoughMoney(scanner, playersBudget, playersPurchases, playersHouses, playersHotels, players, board, index, currentPlayer);
 
             String winner = checkForWinner(playersBudget, playersPurchases, playersSpecialCards, numberOfPlayers, players, currentPlayer, playersHouses, playersHotels);
 
             if (!winner.equals("")) {
                 return;
+            } else {
+                index--;
             }
 
-            index++;
-            index = checkIndex(players, index);
-            System.out.println("Next player!");
-            pressEnterToContinue(scanner);
+            index = turnNextPlayer(scanner, players, index);
+        }
+    }
+
+    private static int turnNextPlayer(Scanner scanner, List<String> players, int index) {
+        index++;
+        index = checkIndex(players, index);
+        System.out.println("Next player!");
+        pressEnterToContinue(scanner);
+        return index;
+    }
+
+    private static void checkForEnoughMoney(Scanner scanner, Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, List<String> players, String[] board, int index, String currentPlayer) {
+        while (playersBudget.get(currentPlayer) < 0) {
+
+            offerToSell(currentPlayer, playersBudget, playersPurchases.get(currentPlayer), board, scanner, playersHotels, playersHouses, playersPurchases.get(currentPlayer), players);
+
+            if (playersBudget.get(currentPlayer) >= 0) {
+                break;
+            }
+
+            if (findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHotels) == 0
+                    && findSumOfAllHotelsOrHousesOfPlayer(currentPlayer, playersHouses) == 0
+                    && playersPurchases.get(currentPlayer).isEmpty()
+                    && playersBudget.get(currentPlayer) < 0) {
+
+                players.remove(currentPlayer);
+
+                System.out.println("The game over for you!");
+                pressEnterToContinue(scanner);
+                break;
+            }
+        }
+    }
+
+    private static void stayInJail(int moveNumber, Scanner scanner, Map<String, Integer> playersBudget, Map<String, Integer> playersJailCounter, Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, List<String> players, int index, String currentPlayer) {
+        if (playersSpecialCards.get(currentPlayer).contains("Get Out of Jail Free")) {
+            usePlayerCardInJail(playersSpecialCards, playersInJail, currentPlayer);
+        } else {
+            System.out.printf("%s, you are In Jail. You must roll 12", currentPlayer);
+            moveNumber = rollTheDice(currentPlayer, scanner);
+            if (moveNumber == 12) {
+                rollTwelveInJail(scanner, playersJailCounter, playersInJail, currentPlayer);
+            } else {
+                rollThreeTimesInJail(scanner, playersBudget, playersJailCounter, playersInJail, currentPlayer);
+            }
         }
     }
 
