@@ -105,7 +105,7 @@ public class Monopoly {
                                      String[] board, String fieldCard, Map<String, Integer> houses, Map<String, Integer> hotels,
                                      Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels,
                                      List<String> players, Map<String, List<String>> playersRailroads, Map<String, List<String>> playersUtilities,
-                                     Map<String, Boolean> haveColorSet) {
+                                     Map<String,Map<String, Boolean>> haveColorSet) {
 
         String TEXT_CYAN = "\u001B[36m";
         String TEXT_RESET = "\u001B[0m";
@@ -250,7 +250,7 @@ public class Monopoly {
         return sumOfHotels;
     }
 
-    private static int getAnnuity(String[] currentField, int housesCount, int hotelsCount, Map<String, Boolean> haveColorSet, String currentPlayer) {
+    private static int getAnnuity(String[] currentField, int housesCount, int hotelsCount, Map<String,Map<String, Boolean>> haveColorSet, String currentPlayer) {
         int annuity = 0;
         if (hotelsCount == 1) {
             annuity = Integer.parseInt(currentField[9]);
@@ -269,14 +269,12 @@ public class Monopoly {
                     annuity = Integer.parseInt(currentField[8]);
             }
         } else {
-            if (haveColorSet.get(currentPlayer)) {
+            if (haveColorSet.get(currentPlayer).get(currentField[0])) {
                 annuity = Integer.parseInt(currentField[4]);
             } else {
                 annuity = Integer.parseInt(currentField[3]);
             }
         }
-
-        //TODO color set annuity
         return annuity;
     }
 
@@ -381,7 +379,7 @@ public class Monopoly {
     public static void switchChance(String chanceRow, Map<String, Integer> playersFieldNumber,
                                     String currentPlayer, Map<String, Integer> playersBudget,
                                     List<String> playersSpecialCards, Map<String, Boolean> playersInJail,
-                                    List<String> players, List<String> playersPurchases, String[] board, Scanner scanner, String[] currentField, String fieldCard, Map<String, Integer> houses, Map<String, Integer> hotels, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, Map<String, List<String>> playersRailroads, Map<String, List<String>> playersUtilities, Map<String, Boolean> haveColorSet) {
+                                    List<String> players, List<String> playersPurchases, String[] board, Scanner scanner, String[] currentField, String fieldCard, Map<String, Integer> houses, Map<String, Integer> hotels, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, Map<String, List<String>> playersRailroads, Map<String, List<String>> playersUtilities, Map<String,Map<String, Boolean>> haveColorSet) {
         switch (chanceRow) {
             case "Advance to Boardwalk":
 
@@ -640,7 +638,7 @@ public class Monopoly {
 
     }
 
-    private static void switchOtherFields(Scanner scanner, List<String> players, Map<String, Integer> playersFieldNumber, Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, Map<String, Integer> houses, Map<String, Integer> hotels, Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, String[] board, ArrayDeque<String> communityChestCards, ArrayDeque<String> chanceCards, String currentPlayer, String[] currentField, String fieldCard, Map<String, List<String>> playersRailroads, Map<String, List<String>> playersUtilities, Map<String, Boolean> haveColorSet) {
+    private static void switchOtherFields(Scanner scanner, List<String> players, Map<String, Integer> playersFieldNumber, Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, Map<String, Integer> houses, Map<String, Integer> hotels, Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, String[] board, ArrayDeque<String> communityChestCards, ArrayDeque<String> chanceCards, String currentPlayer, String[] currentField, String fieldCard, Map<String, List<String>> playersRailroads, Map<String, List<String>> playersUtilities, Map<String,Map<String, Boolean>> haveColorSet) {
         switch (currentField[0]) {
             case "START":
                 System.out.println("You become $200");
@@ -1092,7 +1090,7 @@ public class Monopoly {
         Map<String, List<String>> playersUtilities = new HashMap<>();
         Map<String, Integer> playersJailCounter = new HashMap<>();
         Map<String, Map<String, Integer>> playersColorSet = new HashMap<>();
-        Map<String, Boolean> haveColorSet = new HashMap<>();
+        Map<String, Map<String, Boolean>> haveColorSet = new HashMap<>();
 
         Map<String, Map<String, Integer>> playersHouses = new HashMap<>();
         Map<String, Map<String, Integer>> playersHotels = new HashMap<>();
@@ -1129,7 +1127,7 @@ public class Monopoly {
             playersHouses.put(players.get(i), new HashMap<>());
             playersHotels.put(players.get(i), new HashMap<>());
             playersColorSet.put(players.get(i), new HashMap<>());
-            haveColorSet.put(players.get(i), false);
+            haveColorSet.put(players.get(i), new HashMap<>());
             playersJailCounter.put(players.get(i), 0);
         }
 
@@ -1238,25 +1236,17 @@ public class Monopoly {
     private static void setColor(Map<String, Map<String, Integer>> colorSet, String currentPlayer, String colorType) {
         Map<String, Integer> color = colorSet.get(currentPlayer);
 
-        if (color.get(colorType) > 0) {
-            color.put(colorType, color.get(colorType) + 1);
-        } else {
+        if (color.get(colorType) == null) {
             color.put(colorType, 1);
+        } else {
+            color.put(colorType, color.get(colorType) + 1);
         }
 
         colorSet.put(currentPlayer, color);
     }
 
-    private static void haveColorSet(Map<String, Map<String, Integer>> colorSet, String currentPlayer, String colorType, Map<String, Boolean> haveColorSet, Map<String, Integer> playersFieldNumber) {
+    private static void haveColorSet(Map<String, Map<String, Integer>> colorSet, String currentPlayer, String colorType, Map<String, Map<String, Boolean>> haveColorSet, Map<String, Integer> playersFieldNumber) {
         Map<String, Integer> color = colorSet.get(currentPlayer);
-
-        if (color.get(colorType) > 0) {
-            color.put(colorType, color.get(colorType) + 1);
-        } else {
-            color.put(colorType, 1);
-        }
-
-        colorSet.put(currentPlayer, color);
 
         int numberForColorSet = 0;
         switch (playersFieldNumber.get(currentPlayer)) {
@@ -1267,9 +1257,12 @@ public class Monopoly {
                 numberForColorSet = 3;
                 break;
         }
+        Map<String, Boolean> temp = haveColorSet.get(currentPlayer);
         if (colorSet.get(currentPlayer).get(colorType) == numberForColorSet) {
-            haveColorSet.put(currentPlayer, true);
+            temp.put(currentPlayer, true);
+            haveColorSet.put(currentPlayer, temp);
         }
+
     }
 
     private static String switchColor(Map<String, Integer> playersFieldNumber, String currentPlayer) {
