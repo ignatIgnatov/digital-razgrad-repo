@@ -1,3 +1,5 @@
+import org.w3c.dom.ls.LSOutput;
+
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.io.IOException;
@@ -112,9 +114,9 @@ public class Monopoly {
                     break;
                 case 12, 28:
                     if (playersPurchases.size() == 1) {
-                        annuity = moveNumber * 2;
-                    } else if (playersPurchases.size() == 2) {
                         annuity = moveNumber * 4;
+                    } else if (playersPurchases.size() == 2) {
+                        annuity = moveNumber * 10;
                     }
                     break;
             }
@@ -809,7 +811,7 @@ public class Monopoly {
 
     public static void offerToSell(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner, Map<String, Map<String, Integer>> playersHotels, Map<String, Map<String, Integer>> playersHouses, List<String> playersPurchases, List<String> players, Map<String, Integer> playersFieldNumber, Map<String, Map<String, Boolean>> haveColorSet, Map<String, Map<String, Integer>> playersColorSet, List<String> railroads, List<String> utilities) {
 
-        System.out.println(currentPlayer + " you don't have enough money!");
+        System.out.println(currentPlayer + ", you don't have enough money!");
         System.out.println("You need to sell one of your properties.");
 
         pressEnterToContinue(scanner);
@@ -830,24 +832,26 @@ public class Monopoly {
 
             sellHouse(scanner, currentPlayer, playersBudget, board, playersHouses, playersHotels, playerHouses);
 
-        } else if (playersPurchases.size() > 0) {
-
-            sellProperties(currentPlayer, playersBudget, properties, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
-        } else {
+        } else if (properties.isEmpty() && railroads.isEmpty() && utilities.isEmpty()) {
 
             System.out.println(currentPlayer + ", you have nothing for sale!");
+
+        } else {
+
+            sellProperties(currentPlayer, playersBudget, properties, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
         }
     }
 
     private static void sellProperties(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner, Map<String, Integer> playersFieldNumber, Map<String, Map<String, Boolean>> haveColorSet, Map<String, Map<String, Integer>> playersColorSet, List<String> railroads, List<String> utilities) {
 
+        System.out.printf("%s, you have %d properties, %d railroads and %d utilities.%n", currentPlayer, properties.size(), railroads.size(), utilities.size());
         System.out.println("To sell a property, press 1");
         System.out.println("To sell a railroad, press 2");
         System.out.println("To sell an utility, press 3");
-        System.out.println("If you don't want to sell anymore, press 0.");
+        System.out.println("If you don't want to sell anything, press 0.");
         int choice = scanner.nextInt();
         while (choice < 0 || choice > 3) {
-            System.out.println("Enter correct number of property:");
+            System.out.println("Enter correct number: ");
             choice = scanner.nextInt();
         }
 
@@ -856,7 +860,7 @@ public class Monopoly {
                 return;
             case 1:
                 if (properties.isEmpty()) {
-                    System.out.println("You don't have properties. Make another choice");
+                    System.out.println("You don't have properties. Make another choice...");
                     sellProperties(currentPlayer, playersBudget, properties, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
                 } else {
                     sellColorProperty(currentPlayer, playersBudget, properties, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
@@ -864,7 +868,7 @@ public class Monopoly {
                 break;
             case 2:
                 if (railroads.isEmpty()) {
-                    System.out.println("You don't have properties. Make another choice");
+                    System.out.println("You don't have railroads. Make another choice...");
                     sellProperties(currentPlayer, playersBudget, properties, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
                 } else {
                     sellRailRoad(currentPlayer, playersBudget, railroads, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
@@ -872,7 +876,7 @@ public class Monopoly {
                 break;
             case 3:
                 if (utilities.isEmpty()) {
-                    System.out.println("You don't have utilities. Make another choice");
+                    System.out.println("You don't have utilities. Make another choice...");
                     sellProperties(currentPlayer, playersBudget, properties, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
                 } else {
                     sellUtility(currentPlayer, playersBudget, railroads, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
@@ -883,10 +887,13 @@ public class Monopoly {
 
     private static void sellColorProperty(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner, Map<String, Integer> playersFieldNumber, Map<String, Map<String, Boolean>> haveColorSet, Map<String, Map<String, Integer>> playersColorSet, List<String> railroads, List<String> utilities) {
         System.out.println(currentPlayer + ", you have the following properties:");
+
+        int price = 0;
         for (int j = 0; j < properties.size(); j++) {
             String current = properties.get(j);
             int index = findIndexOfProperty(current, board);
-            System.out.println(j + 1 + ". " + current + " -> $" + board[index].split(", ")[2]);
+            price = (int) (Integer.parseInt(board[index].split(", ")[2]) * 0.5);
+            System.out.println(j + 1 + ". " + current + " -> $" + price);
         }
         System.out.print("Enter the number of the property you want to sell. ");
         System.out.println("If you don't want to sell anymore, press 0.");
@@ -897,7 +904,8 @@ public class Monopoly {
         }
 
         if (numberOfProperty == 0) {
-            sellProperties(currentPlayer, playersBudget, properties, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
+            System.out.println("You didn't sell anything...");
+            return;
         }
 
         String propertyName = properties.get(numberOfProperty - 1);
@@ -905,7 +913,7 @@ public class Monopoly {
         int indexOfProperty = findIndexOfProperty(propertyName, board);
 
         properties.remove(numberOfProperty - 1);
-        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + Integer.parseInt(currentProperty[2]));
+        playersBudget.put(currentPlayer, (int) (playersBudget.get(currentPlayer) + Integer.parseInt(currentProperty[2]) * 0.5));
         currentProperty[1] = "for rent";
         currentProperty[currentProperty.length - 1] = "none";
         board[indexOfProperty] = String.join(", ", currentProperty);
@@ -918,16 +926,18 @@ public class Monopoly {
         temp2.put(color, temp2.get(color) - 1);
         playersColorSet.put(currentPlayer, temp2);
 
-        System.out.println("You sold a property " + propertyName);
+        System.out.println("You sold a property '" + propertyName + "' for $" + (int) (Integer.parseInt(currentProperty[2]) * 0.5) + ".");
         scanner.nextLine();
     }
 
     private static void sellRailRoad(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner, Map<String, Integer> playersFieldNumber, Map<String, Map<String, Boolean>> haveColorSet, Map<String, Map<String, Integer>> playersColorSet, List<String> railroads, List<String> utilities) {
         System.out.println(currentPlayer + ", you have the following railroads:");
+        int price = 0;
         for (int j = 0; j < railroads.size(); j++) {
             String current = railroads.get(j);
             int index = findIndexOfProperty(current, board);
-            System.out.println(j + 1 + ". " + current + " -> $" + board[index].split(", ")[2]);
+            price = (int) (Integer.parseInt(board[index].split(", ")[2]) * 0.5);
+            System.out.println(j + 1 + ". " + current + " -> $" + price);
         }
         System.out.print("Enter the number of the property you want to sell. ");
         System.out.println("If you don't want to sell anymore, press 0.");
@@ -938,7 +948,8 @@ public class Monopoly {
         }
 
         if (numberOfProperty == 0) {
-            sellProperties(currentPlayer, playersBudget, properties, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
+            System.out.println("You didn't sell anything...");
+            return;
         }
 
         String propertyName = railroads.get(numberOfProperty - 1);
@@ -946,21 +957,23 @@ public class Monopoly {
         int indexOfProperty = findIndexOfProperty(propertyName, board);
 
         railroads.remove(numberOfProperty - 1);
-        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + Integer.parseInt(currentProperty[2]));
+        playersBudget.put(currentPlayer, (int) (playersBudget.get(currentPlayer) + (Integer.parseInt(currentProperty[2]) * 0.5)));
         currentProperty[1] = "for rent";
         currentProperty[currentProperty.length - 1] = "none";
         board[indexOfProperty] = String.join(", ", currentProperty);
 
-        System.out.println("You sold a railroad " + propertyName);
+        System.out.println("You sold a railroad '" + propertyName + "' for $" + (int) (Integer.parseInt(currentProperty[2]) * 0.5) + ".");
         scanner.nextLine();
     }
 
     private static void sellUtility(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner, Map<String, Integer> playersFieldNumber, Map<String, Map<String, Boolean>> haveColorSet, Map<String, Map<String, Integer>> playersColorSet, List<String> railroads, List<String> utilities) {
         System.out.println(currentPlayer + ", you have the following utilities:");
+        int price = 0;
         for (int j = 0; j < utilities.size(); j++) {
             String current = utilities.get(j);
             int index = findIndexOfProperty(current, board);
-            System.out.println(j + 1 + ". " + current + " -> $" + board[index].split(", ")[2]);
+            price = (int) (Integer.parseInt(board[index].split(", ")[2]) * 0.5);
+            System.out.println(j + 1 + ". " + current + " -> $" + price);
         }
         System.out.print("Enter the number of the utility you want to sell. ");
         System.out.println("If you don't want to sell anymore, press 0.");
@@ -971,7 +984,8 @@ public class Monopoly {
         }
 
         if (numberOfProperty == 0) {
-            sellProperties(currentPlayer, playersBudget, properties, board, scanner, playersFieldNumber, haveColorSet, playersColorSet, railroads, utilities);
+            System.out.println("You didn't sell anything...");
+            return;
         }
 
         String propertyName = utilities.get(numberOfProperty - 1);
@@ -979,12 +993,12 @@ public class Monopoly {
         int indexOfProperty = findIndexOfProperty(propertyName, board);
 
         utilities.remove(numberOfProperty - 1);
-        playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + Integer.parseInt(currentProperty[2]));
+        playersBudget.put(currentPlayer, (int) (playersBudget.get(currentPlayer) + (Integer.parseInt(currentProperty[2]) * 0.5)));
         currentProperty[1] = "for rent";
         currentProperty[currentProperty.length - 1] = "none";
         board[indexOfProperty] = String.join(", ", currentProperty);
 
-        System.out.println("You sold a utility " + propertyName);
+        System.out.println("You sold a utility '" + propertyName + "' for $" + (int) (Integer.parseInt(currentProperty[2]) * 0.5) + ".");
         scanner.nextLine();
     }
 
