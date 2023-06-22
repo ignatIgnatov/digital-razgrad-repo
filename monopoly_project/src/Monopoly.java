@@ -4,6 +4,162 @@ import java.io.IOException;
 import java.util.*;
 
 public class Monopoly {
+    public static void main(String[] args) throws IOException {
+        Scanner scanner = new Scanner(System.in);
+
+        Map<String, Integer> playersFieldNumber = new HashMap<>();
+        Map<String, Integer> playersBudget = new HashMap<>();
+
+        Map<String, List<String>> playersProperties = new HashMap<>();
+        Map<String, Map<String, Integer>> playersColorSet = new HashMap<>();
+        Map<String, Map<String, Boolean>> haveColorSet = new HashMap<>();
+        Map<String, Map<String, Integer>> playersHouses = new HashMap<>();
+        Map<String, Map<String, Integer>> playersHotels = new HashMap<>();
+
+        Map<String, List<String>> playersRailroads = new HashMap<>();
+        Map<String, List<String>> playersUtilities = new HashMap<>();
+
+        Map<String, Boolean> playersInJail = new HashMap<>();
+        Map<String, Integer> playersJailCounter = new HashMap<>();
+
+        Map<String, List<String>> playersSpecialCards = new HashMap<>();
+
+        List<String> players = new ArrayList<>();
+
+        String[] board = arrayFromFile("dataBase/BoardFields.txt", 40);
+
+        String[] communityChest = arrayFromFile("dataBase/CommunityChest.txt", 16);
+        ArrayDeque<String> communityChestCards = convertArrayToDeque(communityChest);
+
+        String[] chance = arrayFromFile("dataBase/Chance.txt", 16);
+        ArrayDeque<String> chanceCards = convertArrayToDeque(chance);
+
+        printMonopoly();
+
+        int numberOfPlayers = enterNumberOfPlayers(scanner);
+
+        fillPlayerNames(numberOfPlayers, players, scanner);
+
+        for (int i = 0; i < players.size(); i++) {
+            playersBudget.put(players.get(i), 300);
+            playersFieldNumber.put(players.get(i), 0);
+            playersProperties.put(players.get(i), new ArrayList<>());
+            playersRailroads.put(players.get(i), new ArrayList<>());
+            playersUtilities.put(players.get(i), new ArrayList<>());
+            playersSpecialCards.put(players.get(i), new ArrayList<>());
+            playersInJail.put(players.get(i), false);
+            playersHouses.put(players.get(i), new HashMap<>());
+            playersHotels.put(players.get(i), new HashMap<>());
+            playersColorSet.put(players.get(i), new HashMap<>());
+            haveColorSet.put(players.get(i), new HashMap<>());
+            playersJailCounter.put(players.get(i), 0);
+        }
+
+        printStart();
+
+        int index = 0;
+        while (!players.isEmpty()) {
+            String currentPlayer = players.get(index);
+            int moveNumber = 0;
+
+            if (playersInJail.get(currentPlayer)) {
+
+                stayInJail(moveNumber, scanner, playersBudget, playersJailCounter, playersSpecialCards, playersInJail, players, index, currentPlayer);
+                index = checkIndexForNextPlayer(scanner, players, index);
+                System.out.println("Next player!");
+                pressEnterToContinue(scanner);
+                continue;
+            }
+
+            if (playersBudget.get(currentPlayer) < 0) {
+
+                index = checkIndexForNotEnoughMoney(scanner, playersBudget, playersProperties, playersHouses,
+                        playersHotels, players, board, index, currentPlayer, playersFieldNumber, haveColorSet, playersColorSet, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
+
+                String winner = checkForWinner(playersBudget, playersProperties, playersSpecialCards, numberOfPlayers, players, currentPlayer, playersHouses, playersHotels, playersRailroads, playersUtilities);
+
+                if (!winner.equals("")) {
+                    return;
+                }
+
+                index = checkIndexForNextPlayer(scanner, players, index);
+                System.out.println("Next player!");
+                pressEnterToContinue(scanner);
+                continue;
+            }
+
+            moveNumber = rollTheDice(currentPlayer, scanner);
+
+            playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) + moveNumber);
+
+            scrollTheFields(scanner, playersFieldNumber, playersBudget, currentPlayer);
+
+            String[] currentField = getCurrentField(playersFieldNumber, board, currentPlayer);
+
+            printCurrentField(currentField);
+
+            printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersProperties.get(currentPlayer), playersSpecialCards.get(currentPlayer), playersHouses, playersHotels, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
+
+            String fieldCard = "";
+
+            switch (playersFieldNumber.get(currentPlayer)) {
+
+                case 0, 2, 4, 7, 10, 17, 20, 22, 30, 33, 36, 38:
+                    fieldCard = createOtherFieldCard(currentField);
+
+                    switchOtherFields(scanner, players, playersFieldNumber, playersBudget, playersProperties,
+                            playersHouses, playersHotels, playersSpecialCards,
+                            playersInJail, board, communityChestCards, chanceCards, currentPlayer,
+                            currentField, fieldCard, playersRailroads, playersUtilities, haveColorSet, playersColorSet, moveNumber, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
+
+                    break;
+                case 1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39:
+                    Map<String, Boolean> temp = new HashMap<>();
+                    temp.put(switchColor(playersFieldNumber, currentPlayer), false);
+                    haveColorSet.put(currentPlayer, temp);
+
+                    Map<String, Integer> color = new HashMap<>();
+                    color.put(switchColor(playersFieldNumber, currentPlayer), 0);
+                    playersColorSet.put(currentPlayer, color);
+
+                    buyColorField(currentField, scanner, currentPlayer,
+                            playersBudget, playersProperties.get(currentPlayer),
+                            playersSpecialCards.get(currentPlayer), playersFieldNumber,
+                            board, fieldCard, playersHouses, playersHotels,
+                            players, playersRailroads, playersUtilities, haveColorSet, playersColorSet, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
+
+                    break;
+                case 5, 15, 25, 35:
+
+                    buyCompanyField(currentField, scanner, currentPlayer, playersBudget,
+                            playersRailroads.get(currentPlayer), playersSpecialCards.get(currentPlayer),
+                            playersFieldNumber, board, fieldCard, playersHotels, playersHouses, players, playersColorSet, haveColorSet, moveNumber, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer), playersRailroads, playersUtilities);
+
+                    break;
+                case 12, 28:
+
+                    buyCompanyField(currentField, scanner, currentPlayer, playersBudget,
+                            playersUtilities.get(currentPlayer), playersSpecialCards.get(currentPlayer),
+                            playersFieldNumber, board, fieldCard, playersHotels, playersHouses, players, playersColorSet, haveColorSet, moveNumber, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer), playersRailroads, playersUtilities);
+
+                    break;
+            }
+
+            printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersProperties.get(currentPlayer), playersSpecialCards.get(currentPlayer), playersHouses, playersHotels, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
+
+            index = checkIndexForNotEnoughMoney(scanner, playersBudget, playersProperties, playersHouses, playersHotels, players, board, index, currentPlayer, playersFieldNumber, haveColorSet, playersColorSet, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
+
+            String winner = checkForWinner(playersBudget, playersProperties, playersSpecialCards, numberOfPlayers, players, currentPlayer, playersHouses, playersHotels, playersRailroads, playersUtilities);
+
+            if (!winner.equals("")) {
+                return;
+            }
+
+            index = checkIndexForNextPlayer(scanner, players, index);
+            System.out.println("Next player!");
+            pressEnterToContinue(scanner);
+        }
+    }
 
     public static void printMonopoly() {
         String TEXT_BG_RED    = "\u001B[41m";
@@ -1306,164 +1462,6 @@ public class Monopoly {
         }
         return colorType;
     }
-
-    public static void main(String[] args) throws IOException {
-        Scanner scanner = new Scanner(System.in);
-
-        Map<String, Integer> playersFieldNumber = new HashMap<>();
-        Map<String, Integer> playersBudget = new HashMap<>();
-
-        Map<String, List<String>> playersProperties = new HashMap<>();
-        Map<String, Map<String, Integer>> playersColorSet = new HashMap<>();
-        Map<String, Map<String, Boolean>> haveColorSet = new HashMap<>();
-        Map<String, Map<String, Integer>> playersHouses = new HashMap<>();
-        Map<String, Map<String, Integer>> playersHotels = new HashMap<>();
-
-        Map<String, List<String>> playersRailroads = new HashMap<>();
-        Map<String, List<String>> playersUtilities = new HashMap<>();
-
-        Map<String, Boolean> playersInJail = new HashMap<>();
-        Map<String, Integer> playersJailCounter = new HashMap<>();
-
-        Map<String, List<String>> playersSpecialCards = new HashMap<>();
-
-        List<String> players = new ArrayList<>();
-
-        String[] board = arrayFromFile("dataBase/BoardFields.txt", 40);
-
-        String[] communityChest = arrayFromFile("dataBase/CommunityChest.txt", 16);
-        ArrayDeque<String> communityChestCards = convertArrayToDeque(communityChest);
-
-        String[] chance = arrayFromFile("dataBase/Chance.txt", 16);
-        ArrayDeque<String> chanceCards = convertArrayToDeque(chance);
-
-        printMonopoly();
-
-        int numberOfPlayers = enterNumberOfPlayers(scanner);
-
-        fillPlayerNames(numberOfPlayers, players, scanner);
-
-        for (int i = 0; i < players.size(); i++) {
-            playersBudget.put(players.get(i), 300);
-            playersFieldNumber.put(players.get(i), 0);
-            playersProperties.put(players.get(i), new ArrayList<>());
-            playersRailroads.put(players.get(i), new ArrayList<>());
-            playersUtilities.put(players.get(i), new ArrayList<>());
-            playersSpecialCards.put(players.get(i), new ArrayList<>());
-            playersInJail.put(players.get(i), false);
-            playersHouses.put(players.get(i), new HashMap<>());
-            playersHotels.put(players.get(i), new HashMap<>());
-            playersColorSet.put(players.get(i), new HashMap<>());
-            haveColorSet.put(players.get(i), new HashMap<>());
-            playersJailCounter.put(players.get(i), 0);
-        }
-
-        printStart();
-
-        int index = 0;
-        while (!players.isEmpty()) {
-            String currentPlayer = players.get(index);
-            int moveNumber = 0;
-
-            if (playersInJail.get(currentPlayer)) {
-
-                stayInJail(moveNumber, scanner, playersBudget, playersJailCounter, playersSpecialCards, playersInJail, players, index, currentPlayer);
-                index = checkIndexForNextPlayer(scanner, players, index);
-                System.out.println("Next player!");
-                pressEnterToContinue(scanner);
-                continue;
-            }
-
-            if (playersBudget.get(currentPlayer) < 0) {
-
-                index = checkIndexForNotEnoughMoney(scanner, playersBudget, playersProperties, playersHouses,
-                        playersHotels, players, board, index, currentPlayer, playersFieldNumber, haveColorSet, playersColorSet, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
-
-                String winner = checkForWinner(playersBudget, playersProperties, playersSpecialCards, numberOfPlayers, players, currentPlayer, playersHouses, playersHotels, playersRailroads, playersUtilities);
-
-                if (!winner.equals("")) {
-                    return;
-                }
-
-                index = checkIndexForNextPlayer(scanner, players, index);
-                System.out.println("Next player!");
-                pressEnterToContinue(scanner);
-                continue;
-            }
-
-            moveNumber = rollTheDice(currentPlayer, scanner);
-
-            playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) + moveNumber);
-
-            scrollTheFields(scanner, playersFieldNumber, playersBudget, currentPlayer);
-
-            String[] currentField = getCurrentField(playersFieldNumber, board, currentPlayer);
-
-            printCurrentField(currentField);
-
-            printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersProperties.get(currentPlayer), playersSpecialCards.get(currentPlayer), playersHouses, playersHotels, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
-
-            String fieldCard = "";
-
-            switch (playersFieldNumber.get(currentPlayer)) {
-
-                case 0, 2, 4, 7, 10, 17, 20, 22, 30, 33, 36, 38:
-                    fieldCard = createOtherFieldCard(currentField);
-
-                    switchOtherFields(scanner, players, playersFieldNumber, playersBudget, playersProperties,
-                            playersHouses, playersHotels, playersSpecialCards,
-                            playersInJail, board, communityChestCards, chanceCards, currentPlayer,
-                            currentField, fieldCard, playersRailroads, playersUtilities, haveColorSet, playersColorSet, moveNumber, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
-
-                    break;
-                case 1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39:
-                    Map<String, Boolean> temp = new HashMap<>();
-                    temp.put(switchColor(playersFieldNumber, currentPlayer), false);
-                    haveColorSet.put(currentPlayer, temp);
-
-                    Map<String, Integer> color = new HashMap<>();
-                    color.put(switchColor(playersFieldNumber, currentPlayer), 0);
-                    playersColorSet.put(currentPlayer, color);
-
-                    buyColorField(currentField, scanner, currentPlayer,
-                            playersBudget, playersProperties.get(currentPlayer),
-                            playersSpecialCards.get(currentPlayer), playersFieldNumber,
-                            board, fieldCard, playersHouses, playersHotels,
-                            players, playersRailroads, playersUtilities, haveColorSet, playersColorSet, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
-
-                    break;
-                case 5, 15, 25, 35:
-
-                    buyCompanyField(currentField, scanner, currentPlayer, playersBudget,
-                            playersRailroads.get(currentPlayer), playersSpecialCards.get(currentPlayer),
-                            playersFieldNumber, board, fieldCard, playersHotels, playersHouses, players, playersColorSet, haveColorSet, moveNumber, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer), playersRailroads, playersUtilities);
-
-                    break;
-                case 12, 28:
-
-                    buyCompanyField(currentField, scanner, currentPlayer, playersBudget,
-                            playersUtilities.get(currentPlayer), playersSpecialCards.get(currentPlayer),
-                            playersFieldNumber, board, fieldCard, playersHotels, playersHouses, players, playersColorSet, haveColorSet, moveNumber, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer), playersRailroads, playersUtilities);
-
-                    break;
-            }
-
-            printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersProperties.get(currentPlayer), playersSpecialCards.get(currentPlayer), playersHouses, playersHotels, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
-
-            index = checkIndexForNotEnoughMoney(scanner, playersBudget, playersProperties, playersHouses, playersHotels, players, board, index, currentPlayer, playersFieldNumber, haveColorSet, playersColorSet, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
-
-            String winner = checkForWinner(playersBudget, playersProperties, playersSpecialCards, numberOfPlayers, players, currentPlayer, playersHouses, playersHotels, playersRailroads, playersUtilities);
-
-            if (!winner.equals("")) {
-                return;
-            }
-
-            index = checkIndexForNextPlayer(scanner, players, index);
-            System.out.println("Next player!");
-            pressEnterToContinue(scanner);
-        }
-    }
-
 
 }
 
