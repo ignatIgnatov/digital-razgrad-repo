@@ -147,14 +147,6 @@ public class Monopoly {
 
             printPlayerStats(currentPlayer, playersBudget.get(currentPlayer), playersProperties.get(currentPlayer), playersSpecialCards.get(currentPlayer), playersHouses, playersHotels, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
 
-            index = checkIndexForNotEnoughMoney(scanner, playersBudget, playersProperties, playersHouses, playersHotels, players, board, index, currentPlayer, playersFieldNumber, haveColorSet, playersColorSet, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer));
-
-            String winner = checkForWinner(playersBudget, playersProperties, playersSpecialCards, numberOfPlayers, players, currentPlayer, playersHouses, playersHotels, playersRailroads, playersUtilities);
-
-            if (!winner.equals("")) {
-                return;
-            }
-
             index = checkIndexForNextPlayer(scanner, players, index);
             System.out.println("Next player!");
             pressEnterToContinue(scanner);
