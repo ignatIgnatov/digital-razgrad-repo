@@ -5,6 +5,108 @@ import java.util.*;
 
 public class Monopoly {
 
+    public static void printMonopoly() {
+        String TEXT_BG_RED    = "\u001B[41m";
+        String TEXT_RED = "\u001B[31m";
+        String TEXT_RESET = "\u001B[0m";
+
+        System.out.println(TEXT_RED + "    *******************" + TEXT_RESET);
+        System.out.println(TEXT_RED + "**** " + TEXT_RESET + TEXT_BG_RED +  " M O N O P O L Y " + TEXT_RESET + TEXT_RED + " ****" + TEXT_RESET);
+        System.out.println(TEXT_RED + "    *******************" + TEXT_RESET);
+        System.out.println();
+        System.out.println("Hello friend!");
+        System.out.print("Enter a number of players (1-4): ");
+    }
+    public static int enterNumberOfPlayers(Scanner scanner) {
+        int numberOfPlayers = Integer.parseInt(scanner.nextLine());
+        while (numberOfPlayers < 1 || numberOfPlayers > 4) {
+            System.out.print("Enter valid number of players (1-4): ");
+            numberOfPlayers = Integer.parseInt(scanner.nextLine());
+        }
+        return numberOfPlayers;
+    }
+    public static void fillPlayerNames(int numberOfPlayers, List<String> players, Scanner scanner) {
+        for (int i = 0; i < numberOfPlayers; i++) {
+            System.out.printf("Enter Player %d name: ", i + 1);
+            String currentName = scanner.nextLine();
+            currentName = checkForEmptyName(currentName, scanner);
+
+            if (i > 0) {
+                currentName = checkForSameName(currentName, players, scanner);
+            }
+
+            players.add(currentName);
+        }
+    }
+    public static void printStart() {
+        String TEXT_GREEN = "\u001B[32m";
+        String TEXT_RESET = "\u001B[0m";
+        System.out.println();
+        System.out.println(TEXT_GREEN + "   *********");
+        System.out.println("**** START ****");
+        System.out.println("   *********" + TEXT_RESET);
+        System.out.println();
+    }
+    public static int rollTheDice(String currentPlayer, Scanner scanner) {
+        Random firstDice = new Random();
+        Random secondDice = new Random();
+
+        int firstDiceResult = 0;
+        int secondDiceResult = 0;
+
+        System.out.println();
+        System.out.printf("%s, press 'Enter' to roll the dice: %n", currentPlayer);
+        String playerRoll = scanner.nextLine();
+
+        while (!playerRoll.isEmpty()) {
+            System.out.printf("%s, press 'Enter' to roll the dice: %n", currentPlayer);
+            playerRoll = scanner.nextLine();
+        }
+
+        firstDiceResult = firstDice.nextInt(1, 7);
+        secondDiceResult = secondDice.nextInt(1, 7);
+        System.out.println("First dice: " + firstDiceResult);
+        System.out.println("Second dice: " + secondDiceResult);
+
+        return firstDiceResult + secondDiceResult;
+    }
+    private static void scrollTheFields(Scanner scanner, Map<String, Integer> playersFieldNumber, Map<String, Integer> playersBudget, String currentPlayer) {
+        if (playersFieldNumber.get(currentPlayer) >= 40) {
+
+            playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 40);
+            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
+            goTroughTheStart(currentPlayer, scanner);
+
+        }
+    }
+    private static String[] getCurrentField(Map<String, Integer> playersFieldNumber, String[] board, String currentPlayer) {
+        String[] currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
+        return currentField;
+    }
+    private static void printCurrentField(String[] currentField) {
+        System.out.println("-----------");
+        System.out.println("Current field: " + currentField[0]);
+        System.out.println("-----------");
+    }
+    public static void printPlayerStats(String name, int money, List<String> purchases, List<String> specialCards, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, List<String> railroads, List<String> utilities) {
+        String TEXT_GREEN = "\u001B[32m";
+        String TEXT_RESET = "\u001B[0m";
+        System.out.println(TEXT_GREEN + "-----------------------------------");
+        System.out.printf("%s's statistic: %n", name);
+        System.out.println("Money: " + "$" + money);
+        String playerFields = purchases.size() > 0 ? "Properties purchased: " + String.join(", ", purchases) : "Properties purchased: none";
+        System.out.println(playerFields);
+        System.out.println("    Houses: " + findSumOfAllHotelsOrHousesOfPlayer(name, playersHouses));
+        System.out.println("    Hotels: " + findSumOfAllHotelsOrHousesOfPlayer(name, playersHotels));
+        String playerRailroads = railroads.size() > 0 ? "RailRoads purchased: " + String.join(", ", railroads) : "Railroads purchased: none";
+        System.out.println(playerRailroads);
+        String playerUtilities = utilities.size() > 0 ? "Utilities purchased: " + String.join(", ", utilities) : "Utilities purchased: none";
+        System.out.println(playerUtilities);
+        String playerCards = specialCards.size() > 0 ? "Special cards: " + String.join(", ", specialCards) : "Special cards: none";
+        System.out.println(playerCards);
+        System.out.println("-----------------------------------" + TEXT_RESET);
+    }
+
     private static String checkForWinner(Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases, Map<String, List<String>> playersSpecialCards, int numberOfPlayers, List<String> players, String currentPlayer, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, Map<String, List<String>> playersRailroads, Map<String, List<String>> playersUtilities) {
         if (numberOfPlayers != players.size() && players.size() == 1) {
             String winner = players.get(0);
@@ -25,27 +127,6 @@ public class Monopoly {
             return "none";
         }
         return "";
-    }
-
-    private static void resetFields(Scanner scanner, Map<String, Integer> playersFieldNumber, Map<String, Integer> playersBudget, String currentPlayer) {
-        if (playersFieldNumber.get(currentPlayer) >= 40) {
-
-            playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 40);
-            playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) + 200);
-            goTroughTheStart(currentPlayer, scanner);
-
-        }
-    }
-
-    private static String[] getCurrentField(Map<String, Integer> playersFieldNumber, String[] board, String currentPlayer) {
-        String[] currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
-        return currentField;
-    }
-
-    private static void printCurrentField(String[] currentField) {
-        System.out.println("-----------");
-        System.out.println("Current field: " + currentField[0]);
-        System.out.println("-----------");
     }
 
     public static ArrayDeque<String> convertArrayToDeque(String[] communityChest) {
@@ -1029,25 +1110,6 @@ public class Monopoly {
         return index;
     }
 
-    public static void printPlayerStats(String name, int money, List<String> purchases, List<String> specialCards, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, List<String> railroads, List<String> utilities) {
-        String TEXT_GREEN = "\u001B[32m";
-        String TEXT_RESET = "\u001B[0m";
-        System.out.println(TEXT_GREEN + "-----------------------------------");
-        System.out.printf("%s's statistic: %n", name);
-        System.out.println("Money: " + "$" + money);
-        String playerFields = purchases.size() > 0 ? "Properties purchased: " + String.join(", ", purchases) : "Properties purchased: none";
-        System.out.println(playerFields);
-        System.out.println("    Houses: " + findSumOfAllHotelsOrHousesOfPlayer(name, playersHouses));
-        System.out.println("    Hotels: " + findSumOfAllHotelsOrHousesOfPlayer(name, playersHotels));
-        String playerRailroads = railroads.size() > 0 ? "RailRoads purchased: " + String.join(", ", railroads) : "Railroads purchased: none";
-        System.out.println(playerRailroads);
-        String playerUtilities = utilities.size() > 0 ? "Utilities purchased: " + String.join(", ", utilities) : "Utilities purchased: none";
-        System.out.println(playerUtilities);
-        String playerCards = specialCards.size() > 0 ? "Special cards: " + String.join(", ", specialCards) : "Special cards: none";
-        System.out.println(playerCards);
-        System.out.println("-----------------------------------" + TEXT_RESET);
-    }
-
     public static String checkForEmptyName(String name, Scanner scanner) {
         while (name == null || name.trim().isEmpty()) {
             System.out.print("The name can't be empty. Enter player name: ");
@@ -1068,75 +1130,6 @@ public class Monopoly {
             }
         }
         return currentName;
-    }
-
-    public static void printLogoOfTheGame() {
-        String TEXT_RED = "\u001B[31m";
-        String TEXT_RESET = "\u001B[0m";
-
-        System.out.println(TEXT_RED + "   *******************" + TEXT_RESET);
-        System.out.println(TEXT_RED + "****" + TEXT_RESET + " M O N O P O L Y " + TEXT_RED + "****" + TEXT_RESET);
-        System.out.println(TEXT_RED + "   *******************" + TEXT_RESET);
-        System.out.println();
-        System.out.println("Hello friend!");
-        System.out.print("Enter a number of players (1-4): ");
-    }
-
-    public static void printStart() {
-        String TEXT_RED = "\u001B[31m";
-        String TEXT_RESET = "\u001B[0m";
-        System.out.println();
-        System.out.println(TEXT_RED + "   *********");
-        System.out.println("**** START ****");
-        System.out.println("   *********" + TEXT_RESET);
-        System.out.println();
-    }
-
-    public static int enterNumberOfPlayers(Scanner scanner) {
-        int numberOfPlayers = Integer.parseInt(scanner.nextLine());
-        while (numberOfPlayers < 1 || numberOfPlayers > 4) {
-            System.out.print("Enter valid number of players (1-4): ");
-            numberOfPlayers = Integer.parseInt(scanner.nextLine());
-        }
-        return numberOfPlayers;
-    }
-
-    public static void fillPlayerNames(int numberOfPlayers, List<String> players, Scanner scanner) {
-        for (int i = 0; i < numberOfPlayers; i++) {
-            System.out.printf("Enter Player %d name: ", i + 1);
-            String currentName = scanner.nextLine();
-            currentName = checkForEmptyName(currentName, scanner);
-
-            if (i > 0) {
-                currentName = checkForSameName(currentName, players, scanner);
-            }
-
-            players.add(currentName);
-        }
-    }
-
-    public static int rollTheDice(String currentPlayer, Scanner scanner) {
-        Random firstDice = new Random();
-        Random secondDice = new Random();
-
-        int firstDiceResult = 0;
-        int secondDiceResult = 0;
-
-        System.out.println();
-        System.out.printf("%s, press 'Enter' to roll the dice: %n", currentPlayer);
-        String playerRoll = scanner.nextLine();
-
-        while (!playerRoll.isEmpty()) {
-            System.out.printf("%s, press 'Enter' to roll the dice: %n", currentPlayer);
-            playerRoll = scanner.nextLine();
-        }
-
-        firstDiceResult = firstDice.nextInt(1, 7);
-        secondDiceResult = secondDice.nextInt(1, 7);
-        System.out.println("First dice: " + firstDiceResult);
-        System.out.println("Second dice: " + secondDiceResult);
-
-        return firstDiceResult + secondDiceResult;
     }
 
     public static String enterYesOrNo(Scanner scanner) {
@@ -1199,10 +1192,15 @@ public class Monopoly {
     }
 
     private static void stayInJail(int moveNumber, Scanner scanner, Map<String, Integer> playersBudget, Map<String, Integer> playersJailCounter, Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, List<String> players, int index, String currentPlayer) {
+        String TEXT_RED = "\u001B[31m";
+        String TEXT_RESET = "\u001B[0m";
+
         if (playersSpecialCards.get(currentPlayer).contains("Get Out of Jail Free")) {
             usePlayerCardInJail(playersSpecialCards, playersInJail, currentPlayer);
         } else {
+            System.out.println(TEXT_RED + "-----------");
             System.out.printf("%s, you are In Jail. You must roll 12", currentPlayer);
+            System.out.println("-----------" + TEXT_RESET);
             moveNumber = rollTheDice(currentPlayer, scanner);
             if (moveNumber == 12) {
                 rollTwelveInJail(scanner, playersJailCounter, playersInJail, currentPlayer);
@@ -1304,10 +1302,6 @@ public class Monopoly {
     public static void main(String[] args) throws IOException {
         Scanner scanner = new Scanner(System.in);
 
-        printLogoOfTheGame();
-
-        int numberOfPlayers = enterNumberOfPlayers(scanner);
-
         Map<String, Integer> playersFieldNumber = new HashMap<>();
         Map<String, Integer> playersBudget = new HashMap<>();
 
@@ -1327,8 +1321,6 @@ public class Monopoly {
 
         List<String> players = new ArrayList<>();
 
-        fillPlayerNames(numberOfPlayers, players, scanner);
-
         String[] board = arrayFromFile("dataBase/BoardFields.txt", 40);
 
         String[] communityChest = arrayFromFile("dataBase/CommunityChest.txt", 16);
@@ -1336,6 +1328,12 @@ public class Monopoly {
 
         String[] chance = arrayFromFile("dataBase/Chance.txt", 16);
         ArrayDeque<String> chanceCards = convertArrayToDeque(chance);
+
+        printMonopoly();
+
+        int numberOfPlayers = enterNumberOfPlayers(scanner);
+
+        fillPlayerNames(numberOfPlayers, players, scanner);
 
         for (int i = 0; i < players.size(); i++) {
             playersBudget.put(players.get(i), 300);
@@ -1389,7 +1387,7 @@ public class Monopoly {
 
             playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) + moveNumber);
 
-            resetFields(scanner, playersFieldNumber, playersBudget, currentPlayer);
+            scrollTheFields(scanner, playersFieldNumber, playersBudget, currentPlayer);
 
             String[] currentField = getCurrentField(playersFieldNumber, board, currentPlayer);
 
