@@ -26,12 +26,12 @@ public class Monopoly {
 
         List<String> players = new ArrayList<>();
 
-        String[] board = arrayFromFile("dataBase/BoardFields.txt", 40);
+        String[] board = arrayFromFile("BoardFields.txt", 40);
 
-        String[] communityChest = arrayFromFile("dataBase/CommunityChest.txt", 16);
+        String[] communityChest = arrayFromFile("CommunityChest.txt", 16);
         ArrayDeque<String> communityChestCards = convertArrayToDeque(communityChest);
 
-        String[] chance = arrayFromFile("dataBase/Chance.txt", 16);
+        String[] chance = arrayFromFile("Chance.txt", 16);
         ArrayDeque<String> chanceCards = convertArrayToDeque(chance);
 
         printMonopoly();
