@@ -91,8 +91,8 @@ public class Monopoly {
             }
 
             pressEnterToRollTheDice(currentPlayer, scanner);
-//            moveNumber = rollTheDice(currentPlayer, scanner);
-            moveNumber = 7;
+            moveNumber = rollTheDice(currentPlayer, scanner);
+
 
             playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) + moveNumber);
 
