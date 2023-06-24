@@ -34,7 +34,8 @@ public class Monopoly {
         String[] chance = arrayFromFile("Chance.txt", 16);
         ArrayDeque<String> chanceCards = convertArrayToDeque(chance);
 
-        printMonopoly();
+        printBoard();
+        printHello();
 
         int numberOfPlayers = enterNumberOfPlayers(scanner);
 
@@ -140,9 +141,7 @@ public class Monopoly {
         System.out.println(TEXT_RED + "    *******************" + TEXT_RESET);
         System.out.println(TEXT_RED + "**** " + TEXT_RESET + TEXT_BG_RED + " M O N O P O L Y " + TEXT_RESET + TEXT_RED + " ****" + TEXT_RESET);
         System.out.println(TEXT_RED + "    *******************" + TEXT_RESET);
-        System.out.println();
-        System.out.println("Hello friend!");
-        System.out.print("Enter a number of players (1-4): ");
+
     }
 
     public static int enterNumberOfPlayers(Scanner scanner) {
@@ -1392,6 +1391,36 @@ public class Monopoly {
             default -> "";
 
         };
+    }
+
+    public static void printHello() {
+        System.out.println();
+        System.out.println("WELCOME TO MONOPOLY!");
+        System.out.print("Enter a number of players (1-4): ");
+    }
+
+    public static void printBoard() {
+
+        String TEXT_RED    = "\u001B[31m";
+        String TEXT_GREEN  = "\u001B[32m";
+        String TEXT_RESET  = "\u001B[0m";
+        System.out.println(TEXT_GREEN + "|-----------------------|---------------|-----------|---------|----------|-----------|-------------|----------|-----------|-------------|-----------------------|");
+        System.out.println("|                       | Mediterranean | Community |  Baltic |  Income  |  Reading  |  Oriental   |  Chance  |  Vermont  | Connecticut |                       |");
+        System.out.println("|         START         |     Avenue    |   Chest   |  Avenue |    Tax   |  RailRoad |   Avenue    |          |  Avenue   |    Avenue   |   Jail - only visit   |");
+        System.out.println("|-----------------------|---------------|-----------|---------|----------|-----------|-------------|----------|-----------|-------------|-----------------------|");
+        System.out.println("|        Boardwalk      |                                                                                                               |   St. Charles Place   |");
+        System.out.println("|       Luxury tax      |                                                                                                               |    Electric Company   |");
+        System.out.println("|       Park Place      |  " + TEXT_RESET + TEXT_RED + "    **      **    *********    ***     **    *********    *********    *********    **         **      **  " + TEXT_RESET + TEXT_GREEN + "  |     States Avenue     |");
+        System.out.println("|         Chance        |  " + TEXT_RESET + TEXT_RED + "    ***    ***    **     **    ****    **    **     **    **     **    **     **    **          **    **   " + TEXT_RESET + TEXT_GREEN + "  |    Virginia Avenue    |");
+        System.out.println("|  Short line Railroad  |  " + TEXT_RESET + TEXT_RED + "    ****  ****    **     **    ** **   **    **     **    **     **    **     **    **           **  **   " + TEXT_RESET + TEXT_GREEN + "   | Pennsylvania Railroad |");
+        System.out.println("|  Pennsylvania Avenue  |  " + TEXT_RESET + TEXT_RED + "    **  **  **    **     **    **  **  **    **     **    *********    **     **    **             **     " + TEXT_RESET + TEXT_GREEN + "   |    St. James Place    |");
+        System.out.println("|    Community Chest    |  " + TEXT_RESET + TEXT_RED + "    **      **    **     **    **   *****    **     **    **           **     **    **             **     " + TEXT_RESET + TEXT_GREEN + "   |    Community Chest    |");
+        System.out.println("| North Carolina Avenue |  " + TEXT_RESET + TEXT_RED + "    **      **    *********    **     ***    *********    **           *********    *********      **     " + TEXT_RESET + TEXT_GREEN + "   |    Tennessee Avenue   |");
+        System.out.println("|     Pacific Avenue    |                                                                                                               |    New York Avenue    |");
+        System.out.println("|-----------------------|---------------|-----------|---------|----------|-----------|-------------|----------|-----------|-------------|-----------------------|");
+        System.out.println("|      Go To Jail       |    Marvin     |    Water  | Ventnor | Atlantic |  B. & O.  |  Illinois   | Indiana  |  Chance   |   Kentucky  |      Free Parking     |");
+        System.out.println("|                       |    Gardens    |    works  | Avenue  |  Avenue  | Railroad  |   Avenue    |  Avenue  |           |    Avenue   |                       |");
+        System.out.println("|-----------------------|---------------|-----------|---------|----------|-----------|-------------|----------|-----------|-------------|-----------------------|" + TEXT_RESET);
     }
 
 }
