@@ -34,8 +34,8 @@ public class Monopoly {
         String[] chance = arrayFromFile("Chance.txt", 16);
         ArrayDeque<String> chanceCards = convertArrayToDeque(chance);
 
-        printBoard();
-        printWelcome();
+        printWelcome(scanner);
+        printBoard(scanner);
 
         int numberOfPlayers = enterNumberOfPlayers(scanner);
 
@@ -134,9 +134,15 @@ public class Monopoly {
     }
 
     public static int enterNumberOfPlayers(Scanner scanner) {
-        int numberOfPlayers = Integer.parseInt(scanner.nextLine());
+        System.out.println("Enter a number of players (1-4): ");
+        String number = scanner.nextLine();
+        while (number.isEmpty()) {
+            System.out.println("Enter a number of players (1-4): ");
+            number = scanner.nextLine();
+        }
+        int numberOfPlayers = Integer.parseInt(number);
         while (numberOfPlayers < 1 || numberOfPlayers > 4) {
-            System.out.print("Enter valid number of players (1-4): ");
+            System.out.println("Enter valid number of players (1-4): ");
             numberOfPlayers = Integer.parseInt(scanner.nextLine());
         }
         return numberOfPlayers;
@@ -828,9 +834,11 @@ public class Monopoly {
     }
 
     private static void goToTheJail(String currentPlayer, Map<String, Integer> playersFieldNumber, Map<String, Boolean> playersInJail) {
+        String TEXT_RED = "\u001B[31m";
+        String TEXT_RESET = "\u001B[0m";
         playersFieldNumber.put(currentPlayer, 10);
         playersInJail.put(currentPlayer, true);
-        System.out.println(currentPlayer + ", you are in Jail");
+        System.out.println(TEXT_RED + currentPlayer + ", you are in Jail" + TEXT_RESET);
     }
 
     public static void repairHousesAndHotels(String currentPlayer, Map<String, Integer> playersBudget, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels, int housePrice, int hotelPrice) {
@@ -1204,8 +1212,9 @@ public class Monopoly {
     }
 
     public static void pressEnterToContinue(Scanner scanner) {
-        System.out.println("Press 'Enter' to continue.");
+        System.out.println("Press 'Enter' to continue...");
         scanner.nextLine();
+
     }
 
     public static int checkIndexForNextPlayer(List<String> players, int index) {
@@ -1263,7 +1272,7 @@ public class Monopoly {
             } else {
                 rollThreeTimesInJail(scanner, playersBudget, playersJailCounter, playersInJail, currentPlayer);
                 if (playersInJail.get(currentPlayer)) {
-                    System.out.println("No, try again next time!");
+                    System.out.println(TEXT_RED + "No, try again next time!" + TEXT_RESET);
                 }
             }
         }
@@ -1276,17 +1285,21 @@ public class Monopoly {
 
     public static void rollThreeTimesInJail(Scanner scanner, Map<String, Integer> playersBudget, Map<String, Integer> playersJailCounter, Map<String, Boolean> playersInJail, String currentPlayer) {
 
+        String TEXT_RED = "\u001B[31m";
+        String TEXT_GREEN  = "\u001B[32m";
+        String TEXT_RESET = "\u001B[0m";
+
         if (playersJailCounter.get(currentPlayer) >= 2) {
 
-            System.out.println(currentPlayer + ", you failed to roll a 12 three times.");
-            System.out.println("You have to pay $150 and get out of jail.");
+            System.out.println(TEXT_RED + currentPlayer + ", you failed to roll a 12 three times.");
+            System.out.println("You have to pay $150 and get out of jail." + TEXT_RESET);
             pressEnterToContinue(scanner);
 
             playersInJail.put(currentPlayer, false);
             playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - 150);
             playersJailCounter.put(currentPlayer, 0);
 
-            System.out.println(currentPlayer + ", you paid $150 and you are out of jail.");
+            System.out.println(TEXT_GREEN + currentPlayer + ", you paid $150 and you are out of jail." + TEXT_RESET);
             pressEnterToContinue(scanner);
         } else {
             playersJailCounter.put(currentPlayer, playersJailCounter.get(currentPlayer) + 1);
@@ -1294,9 +1307,11 @@ public class Monopoly {
     }
 
     public static void rollTwelveInJail(Scanner scanner, Map<String, Integer> playersJailCounter, Map<String, Boolean> playersInJail, String currentPlayer) {
+        String TEXT_GREEN  = "\u001B[32m";
+        String TEXT_RESET = "\u001B[0m";
         playersInJail.put(currentPlayer, false);
         playersJailCounter.put(currentPlayer, 0);
-        System.out.println(currentPlayer + ", you roll 12 and you're out of jail");
+        System.out.println(TEXT_GREEN + currentPlayer + ", you roll 12 and you're out of jail" + TEXT_RESET);
         pressEnterToContinue(scanner);
     }
 
@@ -1349,13 +1364,22 @@ public class Monopoly {
         };
     }
 
-    public static void printWelcome() {
-        System.out.println();
-        System.out.println("WELCOME TO MONOPOLY!");
-        System.out.print("Enter a number of players (1-4): ");
+    public static void printWelcome(Scanner scanner) {
+        String TEXT_GREEN = "\u001B[32m";
+        String TEXT_RESET = "\u001B[0m";
+        String TEXT_RED = "\u001B[31m";
+        System.out.println(TEXT_GREEN);
+        System.out.println("    *  *  *  *  *  *");
+        System.out.println("  *                  *" + TEXT_RESET);
+        System.out.println(TEXT_RED + "* WELCOME TO MONOPOLY! *" + TEXT_RESET);
+        System.out.println(TEXT_GREEN + "  *                  *");
+        System.out.println("    *  *  *  *  *  *");
+        System.out.println(TEXT_RESET);
+        System.out.println("Press 'Enter' to show the game board...");
+        scanner.nextLine();
     }
 
-    public static void printBoard() {
+    public static void printBoard(Scanner scanner) {
 
         String TEXT_RED = "\u001B[31m";
         String TEXT_GREEN = "\u001B[32m";
@@ -1377,7 +1401,8 @@ public class Monopoly {
         System.out.println("|      Go To Jail       |    Marvin     |    Water  | Ventnor | Atlantic |  B. & O.  |  Illinois   | Indiana  |  Chance   |   Kentucky  |      Free Parking     |");
         System.out.println("|                       |    Gardens    |    works  | Avenue  |  Avenue  | Railroad  |   Avenue    |  Avenue  |           |    Avenue   |                       |");
         System.out.println("|-----------------------|---------------|-----------|---------|----------|-----------|-------------|----------|-----------|-------------|-----------------------|" + TEXT_RESET);
+        System.out.println();
+        System.out.println();
     }
-
 }
 
