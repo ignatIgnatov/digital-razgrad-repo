@@ -166,13 +166,12 @@ public class Monopoly {
         String TEXT_GREEN = "\u001B[32m";
         String TEXT_RESET = "\u001B[0m";
         System.out.println();
-        System.out.println(TEXT_GREEN + "   *********");
-        System.out.println("**** START ****");
-        System.out.println("   *********" + TEXT_RESET);
-        System.out.println();
-        System.out.println("===========");
+        System.out.println(TEXT_GREEN + "        *********");
+        System.out.println("     **** START ****");
+        System.out.println("        *********");
+        System.out.println("--------------------------");
         System.out.println("Each player is given $" + playersBudget.get(players.get(0)));
-        System.out.println("===========");
+        System.out.println("--------------------------" + TEXT_RESET);
     }
 
     public static int rollTheDice() {
@@ -238,7 +237,7 @@ public class Monopoly {
                 .append(playerRailroads).append(System.lineSeparator())
                 .append(playerUtilities).append(System.lineSeparator())
                 .append(playerCards).append(System.lineSeparator())
-                .append("----------------------").append(System.lineSeparator());
+                .append("----------------------");
 
         return TEXT_GREEN + sb + TEXT_RESET;
     }
@@ -1286,7 +1285,7 @@ public class Monopoly {
     public static void rollThreeTimesInJail(Scanner scanner, Map<String, Integer> playersBudget, Map<String, Integer> playersJailCounter, Map<String, Boolean> playersInJail, String currentPlayer) {
 
         String TEXT_RED = "\u001B[31m";
-        String TEXT_GREEN  = "\u001B[32m";
+        String TEXT_GREEN = "\u001B[32m";
         String TEXT_RESET = "\u001B[0m";
 
         if (playersJailCounter.get(currentPlayer) >= 2) {
@@ -1307,7 +1306,7 @@ public class Monopoly {
     }
 
     public static void rollTwelveInJail(Scanner scanner, Map<String, Integer> playersJailCounter, Map<String, Boolean> playersInJail, String currentPlayer) {
-        String TEXT_GREEN  = "\u001B[32m";
+        String TEXT_GREEN = "\u001B[32m";
         String TEXT_RESET = "\u001B[0m";
         playersInJail.put(currentPlayer, false);
         playersJailCounter.put(currentPlayer, 0);
