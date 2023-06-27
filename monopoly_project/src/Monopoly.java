@@ -42,7 +42,7 @@ public class Monopoly {
         fillPlayerNames(numberOfPlayers, players, scanner);
 
         for (String player : players) {
-            playersBudget.put(player, 1500);
+            playersBudget.put(player, 10000);
             playersFieldNumber.put(player, 0);
             playersProperties.put(player, new ArrayList<>());
             playersRailroads.put(player, new ArrayList<>());
@@ -479,11 +479,12 @@ public class Monopoly {
 
     public static int enterNumberOfField(Scanner scanner, List<String> fields) {
         System.out.println("Enter the number of the field whose house or hotel you want to sell: ");
-        int numberOfTheField = scanner.nextInt();
+        String number = validateEmptyString(scanner);
+        int numberOfTheField = Integer.parseInt(number);
 
         while (numberOfTheField <= 0 || numberOfTheField > fields.size()) {
             System.out.println("Enter the number of the field whose house or hotel you want to sell: ");
-            numberOfTheField = scanner.nextInt();
+            numberOfTheField = Integer.parseInt(scanner.nextLine());
         }
         return numberOfTheField;
     }
@@ -558,12 +559,14 @@ public class Monopoly {
                                        Map<String, Integer> playersBudget, List<String> playersPurchases,
                                        List<String> playersSpecialCards, Map<String, List<String>> playersRailroads, Map<String, List<String>> playersUtilities) {
 
+        String TEXT_BLUE = "\u001B[34m";
+        String TEXT_RESET = "\u001B[0m";
         Map<String, Integer> houses = playersHouses.get(currentPlayer);
         Map<String, Integer> hotels = playersHotels.get(currentPlayer);
 
         if (houses.get(currentField[0]) < 4) {
-
             System.out.printf("%s field is yours.%n", currentField[0]);
+            System.out.println(TEXT_BLUE + currentPlayer + ", you have a color group. Now you can build houses and hotels..." + TEXT_RESET);
             System.out.printf("You have %d houses and %d hotels on this field.%n",
                     playersHouses.get(currentPlayer).get(currentField[0]),
                     playersHotels.get(currentPlayer).get(currentField[0]));
@@ -578,7 +581,7 @@ public class Monopoly {
                 playersHouses.put(currentPlayer, houses);
                 playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - housePrice);
 
-                System.out.println(currentPlayer + ", you bought a house.");
+                System.out.println(TEXT_BLUE + currentPlayer + ", you bought a house." + TEXT_RESET);
                 System.out.println(getPlayersStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases, playersSpecialCards, playersHouses, playersHotels, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer)));
             }
 
@@ -600,7 +603,7 @@ public class Monopoly {
                     playersHouses.put(currentPlayer, houses);
                     playersBudget.put(currentPlayer, playersBudget.get(currentPlayer) - hotelPrice);
 
-                    System.out.println(currentPlayer + ", you bought a hotel");
+                    System.out.println(TEXT_BLUE + currentPlayer + ", you bought a hotel" + TEXT_RESET);
                     System.out.println(getPlayersStats(currentPlayer, playersBudget.get(currentPlayer), playersPurchases, playersSpecialCards, playersHouses, playersHotels, playersRailroads.get(currentPlayer), playersUtilities.get(currentPlayer)));
                 }
             }
@@ -1005,10 +1008,12 @@ public class Monopoly {
     }
 
     private static void getChoiceToCell(String currentPlayer, Map<String, Integer> playersBudget, List<String> properties, String[] board, Scanner scanner, Map<String, Integer> playersFieldNumber, Map<String, Map<String, Boolean>> haveColorSet, Map<String, Map<String, Integer>> playersColorSet, List<String> railroads, List<String> utilities) {
-        int choice = scanner.nextInt();
+        String number = validateEmptyString(scanner);
+
+        int choice = Integer.parseInt(number);
         while (choice < 0 || choice > 3) {
             System.out.println("Enter correct number: ");
-            choice = scanner.nextInt();
+            choice = Integer.parseInt(scanner.nextLine());
         }
 
         switch (choice) {
@@ -1039,6 +1044,14 @@ public class Monopoly {
                 }
                 break;
         }
+    }
+
+    private static String validateEmptyString(Scanner scanner) {
+        String number = scanner.nextLine();
+        while (number.equals("")) {
+            System.out.println("Enter valid number!");
+        }
+        return number;
     }
 
     private static void printChoiceToSell(String currentPlayer, List<String> properties, List<String> railroads, List<String> utilities) {
@@ -1334,7 +1347,6 @@ public class Monopoly {
     }
 
     public static void checkForColorGroup(Map<String, Map<String, Integer>> playersColorFields, String currentPlayer, String colorType, Map<String, Map<String, Boolean>> haveColorGroup, Map<String, Integer> playersFieldNumber) {
-
         int numberForColorGroup = switch (playersFieldNumber.get(currentPlayer)) {
             case 1, 3, 37, 39 -> 2;
             case 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34 -> 3;
