@@ -467,12 +467,25 @@ public class Monopoly {
         System.out.println(TEXT_PURPLE + sb + TEXT_RESET);
     }
 
-    public static ArrayDeque<String> convertArrayToDeque(String[] communityChest) {
+    public static ArrayDeque<String> convertArrayToDeque(String[] cards) {
+        List<Integer> temp = mixCards(cards);
         ArrayDeque<String> result = new ArrayDeque<>();
-        for (String currentPlayer : communityChest) {
-            result.offer(currentPlayer);
+        for (Integer integer : temp) {
+            result.offer(cards[integer]);
         }
         return result;
+    }
+
+    public static List<Integer> mixCards(String[] cards) {
+        List<Integer> temp = new ArrayList<>();
+        Random random = new Random();
+        while (temp.size() != cards.length) {
+            int number = random.nextInt(0, cards.length);
+            if (!temp.contains(number)) {
+                temp.add(number);
+            }
+        }
+        return temp;
     }
 
     public static void buyCompanyField(String[] currentField, Scanner scanner, String currentPlayer,
