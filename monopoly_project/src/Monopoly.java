@@ -42,7 +42,7 @@ public class Monopoly {
         fillPlayerNames(numberOfPlayers, players, scanner);
 
         for (String player : players) {
-            playersBudget.put(player, 3000);
+            playersBudget.put(player, 1500);
             playersFieldNumber.put(player, 0);
             playersProperties.put(player, new ArrayList<>());
             playersRailroads.put(player, new ArrayList<>());
@@ -272,7 +272,7 @@ public class Monopoly {
                                     playersSpecialCards.get(currentPlayer).add(chanceRow);
                                     System.out.println(currentPlayer + ", you added the card 'Get Out of Jail Free' to your Special Card Collection");
                                     break;
-                                case "Go Back 3 Spaces":
+                                case "Go Back 3 Spaces and roll the dice again":
                                     playersFieldNumber.put(currentPlayer, playersFieldNumber.get(currentPlayer) - 3);
                                     System.out.println(currentPlayer + ", you moved back three spaces");
                                     continue;
@@ -332,7 +332,7 @@ public class Monopoly {
         int numberOfPlayers = Integer.parseInt(number);
         while (numberOfPlayers < 1 || numberOfPlayers > 4) {
             System.out.println("Enter valid number of players (1-4): ");
-            numberOfPlayers = Integer.parseInt(scanner.nextLine());
+            numberOfPlayers = Integer.parseInt(validateDigit(scanner));
         }
         return numberOfPlayers;
     }
@@ -703,7 +703,7 @@ public class Monopoly {
 
         while (numberOfTheField <= 0 || numberOfTheField > fields.size()) {
             System.out.println("Enter the number of the field whose house or hotel you want to sell: ");
-            numberOfTheField = Integer.parseInt(scanner.nextLine());
+            numberOfTheField = Integer.parseInt(validateDigit(scanner));
         }
         return numberOfTheField;
     }
@@ -919,8 +919,8 @@ public class Monopoly {
 
         int choice = Integer.parseInt(number);
         while (choice < 0 || choice > 3) {
-            System.out.println("Enter correct number: ");
-            choice = Integer.parseInt(scanner.nextLine());
+            System.out.println("Enter valid number: ");
+            choice = Integer.parseInt(validateDigit(scanner));
         }
 
         switch (choice) {
@@ -955,13 +955,13 @@ public class Monopoly {
 
     private static String validateDigit(Scanner scanner) {
         String number = scanner.nextLine();
-        while(number.isEmpty()) {
+        while(number.length() == 0) {
             System.out.println("Enter a number!");
             number = scanner.nextLine();
         }
         while (!Character.isDigit(number.charAt(0))) {
             System.out.println("Enter valid number!");
-            number = scanner.nextLine();
+            number = validateDigit(scanner);
         }
         return number;
     }
@@ -1017,7 +1017,7 @@ public class Monopoly {
         int numberOfProperty = Integer.parseInt(number);
         while (numberOfProperty < 0 || numberOfProperty > properties.size()) {
             System.out.println("Enter correct number of property:");
-            numberOfProperty = scanner.nextInt();
+            numberOfProperty = Integer.parseInt(validateDigit(scanner));
         }
         return numberOfProperty;
     }
@@ -1310,7 +1310,7 @@ public class Monopoly {
         int number = Integer.parseInt(choice);
         while (number <= 0 || number > 2) {
             System.out.println("Enter valid number!");
-            number = Integer.parseInt(scanner.nextLine());
+            number = Integer.parseInt(validateDigit(scanner));
         }
 
         if (number == 1) {
