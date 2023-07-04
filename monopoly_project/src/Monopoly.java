@@ -69,7 +69,7 @@ public class Monopoly {
                 continue;
             }
 
-            while (checkForNotEnoughMoney(playersBudget, currentPlayer)) {
+            while (playersBudget.get(currentPlayer) < 0) {
                 String nextPlayer = "";
                 if (players.size() > 1) {
                     nextPlayer = players.get(checkIndexForNextPlayer(players, players.get(indexOfPlayer)));
@@ -139,8 +139,8 @@ public class Monopoly {
             switch (currentFieldNumber) {
                 case 1, 3, 6, 8, 9, 11, 13, 14, 16, 18, 19, 21, 23, 24, 26, 27, 29, 31, 32, 34, 37, 39 -> {
                     buyColorField(currentField, scanner, currentPlayer, playersBudget, playersProperties,
-                            playersSpecialCards, playersFieldNumber, board, playersHouses, playersHotels,
-                            playersRailroads, playersUtilities, haveColorGroup, playersColorFields);
+                            playersFieldNumber, board, playersHouses, playersHotels,
+                            haveColorGroup, playersColorFields);
                     printPlayerStats(currentPlayer, playersBudget, playersProperties, playersSpecialCards, playersHouses, playersHotels, playersRailroads, playersUtilities);
                 }
                 case 5, 15, 25, 35 -> {
@@ -226,8 +226,8 @@ public class Monopoly {
                                     playersFieldNumber.put(currentPlayer, 39);
                                     currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
                                     System.out.println(currentPlayer + ", you went to Boardwalk.");
-                                    buyColorField(currentField, scanner, currentPlayer, playersBudget, playersProperties, playersSpecialCards, playersFieldNumber,
-                                            board, playersHouses, playersHotels, playersRailroads, playersUtilities, haveColorGroup, playersColorFields);
+                                    buyColorField(currentField, scanner, currentPlayer, playersBudget, playersProperties, playersFieldNumber,
+                                            board, playersHouses, playersHotels, haveColorGroup, playersColorFields);
                                     break;
                                 case "Advance to START (Collect $200)":
                                     playersFieldNumber.put(currentPlayer, 0);
@@ -242,8 +242,8 @@ public class Monopoly {
                                     playersFieldNumber.put(currentPlayer, 24);
                                     System.out.println(currentPosition + ", you're going to Illinois Avenue");
                                     currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
-                                    buyColorField(currentField, scanner, currentPlayer, playersBudget, playersProperties, playersSpecialCards, playersFieldNumber,
-                                            board, playersHouses, playersHotels, playersRailroads, playersUtilities, haveColorGroup, playersColorFields);
+                                    buyColorField(currentField, scanner, currentPlayer, playersBudget, playersProperties, playersFieldNumber,
+                                            board, playersHouses, playersHotels, haveColorGroup, playersColorFields);
                                     break;
                                 case "Advance to St. Charles Place. If you pass START, collect $200":
                                     currentPosition = playersFieldNumber.get(currentPlayer);
@@ -254,8 +254,8 @@ public class Monopoly {
                                     playersFieldNumber.put(currentPlayer, 11);
                                     System.out.println(currentPlayer + ", you're going to St. Charles Place");
                                     currentField = board[playersFieldNumber.get(currentPlayer)].split(", ");
-                                    buyColorField(currentField, scanner, currentPlayer, playersBudget, playersProperties, playersSpecialCards, playersFieldNumber,
-                                            board, playersHouses, playersHotels, playersRailroads, playersUtilities, haveColorGroup, playersColorFields);
+                                    buyColorField(currentField, scanner, currentPlayer, playersBudget, playersProperties, playersFieldNumber,
+                                            board, playersHouses, playersHotels, haveColorGroup, playersColorFields);
                                     break;
                                 case "Advance to the nearest Railroad. If unowned, you may buy it from the Bank. If owned, " +
                                         "pay the rental to which they are otherwise entitled":
@@ -593,9 +593,8 @@ public class Monopoly {
 
     public static void buyColorField(String[] currentField, Scanner scanner, String currentPlayer,
                                      Map<String, Integer> playersBudget, Map<String, List<String>> playersPurchases,
-                                     Map<String, List<String>> playersSpecialCards, Map<String, Integer> playersFieldNumber,
+                                     Map<String, Integer> playersFieldNumber,
                                      String[] board, Map<String, Map<String, Integer>> playersHouses, Map<String, Map<String, Integer>> playersHotels,
-                                     Map<String, List<String>> playersRailroads, Map<String, List<String>> playersUtilities,
                                      Map<String, Map<String, Boolean>> haveColorGroup, Map<String, Map<String, Integer>> playersColorFields) {
 
         String TEXT_CYAN = "\u001B[36m";
@@ -1178,10 +1177,6 @@ public class Monopoly {
             index = 0;
         }
         return index;
-    }
-
-    public static boolean checkForNotEnoughMoney(Map<String, Integer> budget, String currentPlayer) {
-        return budget.get(currentPlayer) < 0;
     }
 
     public static void stayInJail(Scanner scanner, Map<String, Integer> playersBudget, Map<String, Integer> playersJailCounter, Map<String, List<String>> playersSpecialCards, Map<String, Boolean> playersInJail, String currentPlayer) {
