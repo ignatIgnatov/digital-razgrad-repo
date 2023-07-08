@@ -42,7 +42,7 @@ public class Monopoly {
         fillPlayerNames(numberOfPlayers, players, scanner);
 
         for (String player : players) {
-            playersBudget.put(player, 500);
+            playersBudget.put(player, 1500);
             playersFieldNumber.put(player, 0);
             playersProperties.put(player, new ArrayList<>());
             playersRailroads.put(player, new ArrayList<>());
